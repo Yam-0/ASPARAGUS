@@ -1,0 +1,51 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "asparagus",
+			"command": "gcc",
+			"args": [
+				"-g",
+				"${workspaceFolder}\\src\\main.c",
+				"-o",
+				"${workspaceFolder}\\build\\game.exe",
+				"-IC:sdl\\include",
+				"-LC:sdl\\lib",
+				"-lmingw32",
+				"-lSDL2main",
+				"-lSDL2",
+				"-mwindows"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "exbbat",
+			"type": "shell",
+			"command": "${workspaceFolder}/scripts/build.bat",
+			"options": {
+				"cwd": "${workspaceFolder}/scripts"
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false,
+				"clear": true
+			},
+			"problemMatcher": [
+				"$gcc"
+			]
+		}
+	]
+}
