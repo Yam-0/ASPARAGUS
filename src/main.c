@@ -21,16 +21,13 @@ int update(float deltatime)
 {
 	printf("Updated! | Deltatime: %f\n", deltatime);
 
-	for (int i = 0; i < SCREEN_WIDTH; i++)
-	{
-		struct ASP_Color color;
-		color.r = 255;
-		color.g = 0;
-		color.b = 0;
-		color.a = 255;
+	struct ASP_Color color;
+	color.r = 255;
+	color.g = 0;
+	color.b = 0;
+	color.a = 255;
 
-		ASP_DrawPixel(renderer, color, i, i);
-	}
+	ASP_DrawLine(renderer, color, 50, 50, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
 
 	return 0;
 }

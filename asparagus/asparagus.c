@@ -30,6 +30,7 @@ struct ASP_Color
 };
 
 int ASP_DrawPixel(SDL_Renderer *renderer, struct ASP_Color color, int x, int y);
+int ASP_DrawLine(SDL_Renderer *renderer, struct ASP_Color color, int x1, int y1, int x2, int y2);
 
 int ASP_init(int (*update)(float), int (*start)())
 {
@@ -154,4 +155,23 @@ int ASP_DrawPixel(SDL_Renderer *renderer, struct ASP_Color color, int x, int y)
 {
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 	SDL_RenderDrawPoint(renderer, x, y);
+
+	return 0;
+}
+int ASP_DrawLine(SDL_Renderer *renderer, struct ASP_Color color, int x1, int y1, int x2, int y2)
+{
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+	int dx = x2 - x1;
+	int dy = y2 - y1;
+
+	for (int x = 0; x < dx; x++)
+	{
+		for (int y = 0; y < dy; y++)
+		{
+			SDL_RenderDrawPoint(renderer, x + x1, y + y1);
+		}
+	}
+
+	return 0;
 }
