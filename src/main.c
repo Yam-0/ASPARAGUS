@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <windows.h>
 #include "../asparagus/asparagus.c"
 
 int update(float delta);
@@ -19,7 +20,12 @@ int start()
 
 int update(float deltatime)
 {
-	printf("Updated! | Deltatime: %f\n", deltatime);
+
+	char sfps[10];
+	char str[10];
+	int fps = 1.0f / deltatime;
+	sprintf(str, "%i", &sfps);
+	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, fps);
 
 	struct ASP_Color color;
 	color.r = 255;

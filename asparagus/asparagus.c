@@ -2,8 +2,8 @@
 #include <time.h>
 #include "../sdl/include/SDL2/SDL.h"
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 int ASP_Running = 0;
 int ASP_Sleeping = 0;
@@ -14,6 +14,7 @@ int colorC = 255;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
+SDL_Texture *btexture;
 
 int ASP_init(int (*update)(float), int (*start)());
 int ASP_sleep(int m_secs);
@@ -55,7 +56,7 @@ int ASP_init(int (*update)(float), int (*start)())
 		return -1;
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, 0);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (renderer == NULL)
 	{
 		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
