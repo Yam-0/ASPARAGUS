@@ -4,21 +4,23 @@
 		{
 			"type": "shell",
 			"label": "asparagus",
-			"command": "gcc",
+			"command": "${workspaceFolder}\\mingw-w64\\mingw64\\bin\\gcc.exe",
 			"args": [
+				"-v",
+				"-w",
 				"-g",
-				"${workspaceFolder}\\src\\main.c",
+				"..\\src\\main.c",
 				"-o",
-				"${workspaceFolder}\\build\\game.exe",
-				"-IC:sdl\\include",
-				"-LC:sdl\\lib",
+				"..\\build\\game.exe",
+				"-I","../sdl/include",
+				"-L","../sdl/lib",
 				"-lmingw32",
 				"-lSDL2main",
 				"-lSDL2",
 				"-mwindows"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}"
+				"cwd": "${workspaceFolder}/scripts"
 			},
 			"problemMatcher": [
 				"$gcc"

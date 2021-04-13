@@ -65,9 +65,11 @@ int ASP_init(int (*update)(float), int (*start)())
 		(*update)(deltatime);
 
 		SDL_SetRenderDrawColor(renderer, colorA, colorB, colorC, 255);
-
-		ASP_Render(renderer, window);
 		SDL_RenderClear(renderer);
+
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+		SDL_RenderDrawPoint(renderer, 100, 100);
+		ASP_Render(renderer, window);
 
 		//Frame time - deltatime
 		clock_t difference = clock() - before;
