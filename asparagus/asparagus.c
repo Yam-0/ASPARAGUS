@@ -12,10 +12,24 @@ int colorA = 255;
 int colorB = 144;
 int colorC = 255;
 
+SDL_Window *window;
+SDL_Renderer *renderer;
+
 int ASP_init(int (*update)(float), int (*start)());
 int ASP_sleep(int m_secs);
+
 int ASP_Render(SDL_Renderer *renderer, SDL_Window *window);
 int ASP_EventHandler();
+
+struct ASP_Color
+{
+	int r;
+	int b;
+	int g;
+	int a;
+};
+
+int ASP_DrawPixel(SDL_Renderer *renderer, struct ASP_Color color, int x, int y);
 
 int ASP_init(int (*update)(float), int (*start)())
 {
@@ -33,14 +47,14 @@ int ASP_init(int (*update)(float), int (*start)())
 		return -1;
 	}
 
-	SDL_Window *window = SDL_CreateWindow("ASPARAGUS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("ASPARAGUS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	if (window == NULL)
 	{
 		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
 		return -1;
 	}
 
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+	renderer = SDL_CreateRenderer(window, -1, 0);
 	if (renderer == NULL)
 	{
 		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -61,14 +75,12 @@ int ASP_init(int (*update)(float), int (*start)())
 
 		ASP_EventHandler();
 
-		//Update callback
-		(*update)(deltatime);
-
 		SDL_SetRenderDrawColor(renderer, colorA, colorB, colorC, 255);
 		SDL_RenderClear(renderer);
 
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-		SDL_RenderDrawPoint(renderer, 100, 100);
+		//Update callback
+		(*update)(deltatime);
+
 		ASP_Render(renderer, window);
 
 		//Frame time - deltatime
@@ -136,4 +148,10 @@ int ASP_sleep(int m_secs)
 	}
 
 	return 0;
+}
+
+int ASP_DrawPixel(SDL_Renderer *renderer, struct ASP_Color color, int x, int y)
+{
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+	SDL_RenderDrawPoint(renderer, x, y);
 }
