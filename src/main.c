@@ -5,6 +5,8 @@
 int update(float delta);
 int start();
 
+ASP_Entity player;
+
 int main(int argc, char *argv[])
 {
 	ASP_init(&update, &start);
@@ -15,25 +17,56 @@ int main(int argc, char *argv[])
 int start()
 {
 	printf("Starting update loop!\n");
+	player = ASP_EntityC();
+	player.position.x = 5;
+	player.position.y = 5;
 	return 0;
 }
 
 int update(float deltatime)
 {
+	if (deltatime < 0.002f)
+	{
+		deltatime = 0.001f;
+	}
 
 	char sfps[10];
 	char str[10];
 	int fps = 1.0f / deltatime;
 	sprintf(str, "%i", &sfps);
-	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, fps);
+	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, fps);
 
-	struct ASP_Color color;
-	color.r = 255;
-	color.g = 0;
-	color.b = 0;
-	color.a = 255;
+	float speed = 25;
 
-	ASP_DrawLine(renderer, color, 50, 50, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
+	if (ASPK_Right == 1)
+	{
+		player.position.x += speed * deltatime;
+	}
+	if (ASPK_Left == 1)
+	{
+		player.position.x -= speed * deltatime;
+	}
+	if (ASPK_Up == 1)
+	{
+		player.position.y -= speed * deltatime;
+	}
+	if (ASPK_Down == 1)
+	{
+		player.position.y += speed * deltatime;
+	}
+
+	ASP_Color color1 = ASP_ColorC(255, 0, 0, 255);
+	ASP_Color color2 = ASP_ColorC(0, 255, 0, 255);
+
+	ASP_IVector2 p1 = ASP_IVector2C(player.position.x - 5, player.position.y - 5);
+	ASP_IVector2 p2 = ASP_IVector2C(player.position.x + 5, player.position.y - 5);
+	ASP_IVector2 p3 = ASP_IVector2C(player.position.x + 5, player.position.y + 5);
+	ASP_IVector2 p4 = ASP_IVector2C(player.position.x - 5, player.position.y + 5);
+
+	ASP_DrawLine(renderer, color1, p1, p2);
+	ASP_DrawLine(renderer, color1, p2, p3);
+	ASP_DrawLine(renderer, color1, p3, p4);
+	ASP_DrawLine(renderer, color1, p4, p1);
 
 	return 0;
 }

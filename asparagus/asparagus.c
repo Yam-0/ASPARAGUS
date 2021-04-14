@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <time.h>
 #include "../sdl/include/SDL2/SDL.h"
+#include "./structs.c"
+#include <math.h>
 
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
 
 int ASP_Running = 0;
 int ASP_Sleeping = 0;
@@ -11,6 +13,8 @@ int ASP_Sleeping = 0;
 int colorA = 255;
 int colorB = 144;
 int colorC = 255;
+
+int ASPK_Right, ASPK_Left, ASPK_Down, ASPK_Up;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -22,16 +26,8 @@ int ASP_sleep(int m_secs);
 int ASP_Render(SDL_Renderer *renderer, SDL_Window *window);
 int ASP_EventHandler();
 
-struct ASP_Color
-{
-	int r;
-	int b;
-	int g;
-	int a;
-};
-
-int ASP_DrawPixel(SDL_Renderer *renderer, struct ASP_Color color, int x, int y);
-int ASP_DrawLine(SDL_Renderer *renderer, struct ASP_Color color, int x1, int y1, int x2, int y2);
+int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p);
+int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_IVector2 p2);
 
 int ASP_init(int (*update)(float), int (*start)())
 {
@@ -41,6 +37,8 @@ int ASP_init(int (*update)(float), int (*start)())
 
 	float deltatime = 0;
 	int msec = 0;
+
+	ASPK_Right, ASPK_Left, ASPK_Down, ASPK_Up = 0;
 
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -107,15 +105,59 @@ int ASP_EventHandler()
 	case SDL_QUIT:
 		ASP_Running = 0;
 		break;
+
 	case SDL_MOUSEBUTTONDOWN:
 		colorA = rand() % 255;
 		colorB = rand() % 255;
 		colorC = rand() % 255;
 		break;
+
 	case SDL_MOUSEMOTION:
 		colorA = 255;
 		colorB = 255;
 		colorC = 255;
+		break;
+
+	case SDL_KEYDOWN:
+		switch (event.key.keysym.sym)
+		{
+		case SDLK_RIGHT:
+			ASPK_Right = 1;
+			break;
+
+		case SDLK_LEFT:
+			ASPK_Left = 1;
+			break;
+
+		case SDLK_DOWN:
+			ASPK_Down = 1;
+			break;
+
+		case SDLK_UP:
+			ASPK_Up = 1;
+			break;
+		}
+		break;
+
+	case SDL_KEYUP:
+		switch (event.key.keysym.sym)
+		{
+		case SDLK_RIGHT:
+			ASPK_Right = 0;
+			break;
+
+		case SDLK_LEFT:
+			ASPK_Left = 0;
+			break;
+
+		case SDLK_DOWN:
+			ASPK_Down = 0;
+			break;
+
+		case SDLK_UP:
+			ASPK_Up = 0;
+			break;
+		}
 		break;
 
 	default:
@@ -152,27 +194,33 @@ int ASP_sleep(int m_secs)
 	return 0;
 }
 
-int ASP_DrawPixel(SDL_Renderer *renderer, struct ASP_Color color, int x, int y)
+int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p)
 {
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-	SDL_RenderDrawPoint(renderer, x, y);
+	SDL_RenderDrawPoint(renderer, p.x, p.y);
 
 	return 0;
 }
-int ASP_DrawLine(SDL_Renderer *renderer, struct ASP_Color color, int x1, int y1, int x2, int y2)
+int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_IVector2 p2)
 {
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
-	int dx = x2 - x1;
-	int dy = y2 - y1;
+	int dx = p2.x - p1.x;
+	int dy = p2.y - p1.y;
+	float rr1 = (float)dy / (float)dx;
+	float l_angle = atanf(rr1);
 
+	ASP_IVector2 drawpoint;
 	for (int x = 0; x < dx; x++)
 	{
-		for (int y = 0; y < dy; y++)
-		{
-			SDL_RenderDrawPoint(renderer, x + x1, y + y1);
-		}
+		int y = tan(l_angle) * (dx - x);
+
+		drawpoint.x = p1.x + x;
+		drawpoint.y = p1.y + (dy - y);
+		//ASP_DrawPixel(renderer, color, drawpoint);
 	}
+
+	SDL_RenderDrawLine(renderer, p1.x, p1.y, p2.x, p2.y);
 
 	return 0;
 }
