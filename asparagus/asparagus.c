@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <time.h>
-#include "../sdl/include/SDL2/SDL.h"
-#include "./structs.c"
-#include <math.h>
+#include "./asparagus.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -10,24 +6,11 @@ const int SCREEN_HEIGHT = 480;
 int ASP_Running = 0;
 int ASP_Sleeping = 0;
 
-int colorA = 255;
-int colorB = 144;
-int colorC = 255;
-
 int ASPK_Right, ASPK_Left, ASPK_Down, ASPK_Up;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *btexture;
-
-int ASP_init(int (*update)(float), int (*start)());
-int ASP_sleep(int m_secs);
-
-int ASP_Render(SDL_Renderer *renderer, SDL_Window *window);
-int ASP_EventHandler();
-
-int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p);
-int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_IVector2 p2);
 
 int ASP_init(int (*update)(float), int (*start)())
 {
@@ -75,7 +58,7 @@ int ASP_init(int (*update)(float), int (*start)())
 
 		ASP_EventHandler();
 
-		SDL_SetRenderDrawColor(renderer, colorA, colorB, colorC, 255);
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
 
 		//Update callback
@@ -107,15 +90,9 @@ int ASP_EventHandler()
 		break;
 
 	case SDL_MOUSEBUTTONDOWN:
-		colorA = rand() % 255;
-		colorB = rand() % 255;
-		colorC = rand() % 255;
 		break;
 
 	case SDL_MOUSEMOTION:
-		colorA = 255;
-		colorB = 255;
-		colorC = 255;
 		break;
 
 	case SDL_KEYDOWN:
@@ -207,20 +184,25 @@ int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_I
 
 	int dx = p2.x - p1.x;
 	int dy = p2.y - p1.y;
-	float rr1 = (float)dy / (float)dx;
-	float l_angle = atanf(rr1);
+
+	float l_tr = (float)dy / (float)dx;
+	float l_angle = atanf(l_tr);
+	float l_length = sqrtf(dx * dx + dy * dy);
+
+	float xOffset;
+	float yOffset;
+
+	int l_dirM = 2 * (p2.x >= p1.x) - 1;
+	xOffset = cosf(l_angle) * l_dirM;
+	yOffset = sinf(l_angle) * l_dirM;
 
 	ASP_IVector2 drawpoint;
-	for (int x = 0; x < dx; x++)
+	for (int i = 0; i < l_length; i++)
 	{
-		int y = tan(l_angle) * (dx - x);
-
-		drawpoint.x = p1.x + x;
-		drawpoint.y = p1.y + (dy - y);
-		//ASP_DrawPixel(renderer, color, drawpoint);
+		drawpoint.x = p1.x + xOffset * i;
+		drawpoint.y = p1.y + yOffset * i;
+		ASP_DrawPixel(renderer, color, drawpoint);
 	}
-
-	SDL_RenderDrawLine(renderer, p1.x, p1.y, p2.x, p2.y);
 
 	return 0;
 }

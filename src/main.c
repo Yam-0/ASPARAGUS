@@ -68,5 +68,12 @@ int update(float deltatime)
 	ASP_DrawLine(renderer, color1, p3, p4);
 	ASP_DrawLine(renderer, color1, p4, p1);
 
+	ASP_Color color3 = ASP_ColorC(255, 0, 0, 255);
+	ASP_IVector2 pp1 = ASP_IVector2C(player.position.x, player.position.y);
+	ASP_IVector2 pp2 = ASP_IVector2C(300, 200);
+	ASP_IVector2 pp3 = ASP_IVector2C(200, 300);
+	ASP_DrawLine(renderer, color3, pp1, pp2);
+	ASP_DrawLine(renderer, color2, pp1, pp3);
+
 	return 0;
 }
