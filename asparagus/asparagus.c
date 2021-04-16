@@ -7,10 +7,13 @@ int ASP_Running = 0;
 int ASP_Sleeping = 0;
 
 int ASPK_Right, ASPK_Left, ASPK_Down, ASPK_Up;
+int ASPK_W, ASPK_A, ASPK_S, ASPK_D;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *btexture;
+
+float PI = 3.141592f;
 
 int ASP_init(int (*update)(float), int (*start)())
 {
@@ -113,6 +116,22 @@ int ASP_EventHandler()
 		case SDLK_UP:
 			ASPK_Up = 1;
 			break;
+
+		case SDLK_w:
+			ASPK_W = 1;
+			break;
+
+		case SDLK_a:
+			ASPK_A = 1;
+			break;
+
+		case SDLK_s:
+			ASPK_S = 1;
+			break;
+
+		case SDLK_d:
+			ASPK_D = 1;
+			break;
 		}
 		break;
 
@@ -133,6 +152,22 @@ int ASP_EventHandler()
 
 		case SDLK_UP:
 			ASPK_Up = 0;
+			break;
+
+		case SDLK_w:
+			ASPK_W = 0;
+			break;
+
+		case SDLK_a:
+			ASPK_A = 0;
+			break;
+
+		case SDLK_s:
+			ASPK_S = 0;
+			break;
+
+		case SDLK_d:
+			ASPK_D = 0;
 			break;
 		}
 		break;
