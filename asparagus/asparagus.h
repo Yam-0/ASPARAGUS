@@ -21,8 +21,11 @@ int ASP_Render(SDL_Renderer *renderer, SDL_Window *window);
 /* Asparagus internal event handler */
 int ASP_EventHandler();
 
-/* Draws a pixel to the renderer surface */
+/* Draws a pixel to the render surface */
 int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p);
 
-/* Draws a line to the renderer surface */
+/* Draws a line to the render surface */
 int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_IVector2 p2);
+
+/* Draws a rectangle to the render surface */
+int ASP_DrawRect(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 position, ASP_IVector2 scale);

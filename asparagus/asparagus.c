@@ -206,3 +206,18 @@ int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_I
 
 	return 0;
 }
+
+int ASP_DrawRect(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 position, ASP_IVector2 scale)
+{
+	ASP_IVector2 p1 = ASP_IVector2C(position.x, position.y);
+	ASP_IVector2 p2 = ASP_IVector2C(position.x + scale.x, position.y);
+	ASP_IVector2 p3 = ASP_IVector2C(position.x + scale.x, position.y + scale.y);
+	ASP_IVector2 p4 = ASP_IVector2C(position.x, position.y + scale.y);
+
+	ASP_DrawLine(renderer, color, p1, p2);
+	ASP_DrawLine(renderer, color, p2, p3);
+	ASP_DrawLine(renderer, color, p3, p4);
+	ASP_DrawLine(renderer, color, p4, p1);
+
+	return 0;
+}
