@@ -199,8 +199,8 @@ int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_I
 	ASP_IVector2 drawpoint;
 	for (int i = 0; i < l_length; i++)
 	{
-		drawpoint.x = p1.x + xOffset * i;
-		drawpoint.y = p1.y + yOffset * i;
+		drawpoint.x = round(p1.x + xOffset * i);
+		drawpoint.y = round(p1.y + yOffset * i);
 		ASP_DrawPixel(renderer, color, drawpoint);
 	}
 

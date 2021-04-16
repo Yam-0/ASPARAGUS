@@ -55,16 +55,20 @@ int update(float deltatime)
 		player.position.y += speed * deltatime;
 	}
 
-	ASP_Color color1 = ASP_ColorC(255, 0, 0, 255);
-	ASP_Color color2 = ASP_ColorC(0, 255, 0, 255);
-	ASP_DrawRect(renderer, color1, ASP_IVector2C(player.position.x, player.position.y), ASP_IVector2C(10, 10));
+	int boxSize = (SCREEN_WIDTH - 60) / 3;
+	int xOffset = (SCREEN_WIDTH - boxSize * 3) / 2;
+	ASP_IVector2 boxScale = ASP_IVector2C(boxSize, boxSize);
+	int box1posx = (boxSize * 0) + xOffset;
+	int box2posx = (boxSize * 1) + xOffset;
+	int box3posx = (boxSize * 2) + xOffset;
 
-	ASP_Color color3 = ASP_ColorC(255, 0, 0, 255);
-	ASP_IVector2 pp1 = ASP_IVector2C(player.position.x + 5, player.position.y + 5);
-	ASP_IVector2 pp2 = ASP_IVector2C(300, 200);
-	ASP_IVector2 pp3 = ASP_IVector2C(200, 300);
-	ASP_DrawLine(renderer, color3, pp1, pp2);
-	ASP_DrawLine(renderer, color2, pp1, pp3);
+	ASP_Color RED = ASP_ColorC(255, 0, 0, 255);
+	ASP_DrawRect(renderer, RED, ASP_IVector2C(box1posx, SCREEN_HEIGHT / 2 - boxSize / 2), boxScale);
+	ASP_DrawRect(renderer, RED, ASP_IVector2C(box2posx, SCREEN_HEIGHT / 2 - boxSize / 2), boxScale);
+	ASP_DrawRect(renderer, RED, ASP_IVector2C(box3posx, SCREEN_HEIGHT / 2 - boxSize / 2), boxScale);
+
+	/*FIRST BOX*/
+	ASP_DrawRect(renderer, RED, );
 
 	return 0;
 }
