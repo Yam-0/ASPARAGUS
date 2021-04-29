@@ -34,3 +34,22 @@ int isEven(int value)
 	x = x % 2 == 0 ? x : x - 1;
 	return x;
 }
+
+ASP_FVector3 CrossProduct(ASP_FVector3 v, ASP_FVector3 w)
+{
+	ASP_FVector3 cp;
+
+	cp.x = v.y * w.z - v.z * w.y;
+	cp.y = v.x * w.z - v.x * w.z;
+	cp.z = v.x * w.y - v.y * w.x;
+
+	return cp;
+}
+float DotProduct(ASP_FVector3 v, ASP_FVector3 w)
+{
+	float dot;
+
+	dot = v.x * w.x + v.y * w.y + v.z * w.z;
+
+	return dot;
+}
