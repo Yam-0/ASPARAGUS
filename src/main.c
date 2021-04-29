@@ -69,5 +69,13 @@ int update(float deltatime)
 		player.rotation.z += p_rspeed * deltatime;
 	}
 
+	ASP_IVector2 dcenter = ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+	ASP_FVector2 w1p = ASP_FVector2C(5, 5);
+	float dist = sqrtf(powf(player.position.x - w1p.x, 2) + powf(player.position.y - w1p.y, 2));
+	int height = 100 / dist;
+
+	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
+	ASP_DrawLine(renderer, color, ASP_IVector2C(dcenter.x, dcenter.y - height / 2), ASP_IVector2C(dcenter.x, dcenter.y + height / 2));
+
 	return 0;
 }
