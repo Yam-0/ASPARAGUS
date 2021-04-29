@@ -84,6 +84,26 @@ ASP_FVector3 ASP_FVector3C(float x, float y, float z)
 	return vector;
 }
 
+/* Asparagus Vertex */
+typedef struct
+{
+	ASP_FVector3 position;
+	int pointers[3];
+	int id;
+} ASP_Vertex;
+
+/* CONSTRUCTOR */
+ASP_Vertex ASP_VertexC(ASP_FVector3 position, int pointers[], int id)
+{
+	ASP_Vertex vertex;
+	vertex.pointers[0] = pointers[0];
+	vertex.pointers[1] = pointers[1];
+	vertex.pointers[2] = pointers[2];
+	vertex.position = position;
+	vertex.id = id;
+	return vertex;
+}
+
 /* Standard Asparagus Entity */
 typedef struct
 {
@@ -92,6 +112,7 @@ typedef struct
 	ASP_FVector3 position;
 	ASP_FVector3 rotation;
 	ASP_FVector3 scale;
+	ASP_Vertex vertices[64];
 	int type;
 } ASP_Entity;
 
