@@ -70,7 +70,7 @@ int ASP_init(int (*update)(float), int (*start)())
 
 		ASP_Render(renderer, window);
 
-		//Frame time - deltatime
+		//Frame time & deltatime
 		clock_t difference = clock() - before;
 		msec = difference * 1000 / CLOCKS_PER_SEC;
 		deltatime = (float)msec / 1000;
