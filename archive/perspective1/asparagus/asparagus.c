@@ -14,7 +14,6 @@ SDL_Renderer *renderer;
 SDL_Texture *btexture;
 
 float PI = 3.141592f;
-float ASP_FPS;
 
 int ASP_init(int (*update)(float), int (*start)())
 {
@@ -74,8 +73,6 @@ int ASP_init(int (*update)(float), int (*start)())
 		clock_t difference = clock() - before;
 		msec = difference * 1000 / CLOCKS_PER_SEC;
 		deltatime = (float)msec / 1000;
-		deltatime = (deltatime <= 0.001f) ? deltatime + 0.001f : deltatime;
-		ASP_FPS = 1.0f / deltatime;
 	}
 
 	SDL_DestroyRenderer(renderer);
