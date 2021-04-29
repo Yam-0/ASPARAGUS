@@ -5,6 +5,9 @@
 int update(float delta);
 int start();
 
+ASP_FVector3 CrossProduct(ASP_FVector3 v, ASP_FVector3 w);
+float DotProduct(ASP_FVector3 v, ASP_FVector3 w);
+
 ASP_Entity player;
 
 int main(int argc, char *argv[])
@@ -27,8 +30,8 @@ int update(float deltatime)
 {
 	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
 
-	float p_mspeed = 75;
-	float p_rspeed = 2;
+	float p_mspeed = 35;
+	float p_rspeed = 0.4f;
 	int iHorizontal = 0;
 	int iVertical = 0;
 	if (ASPK_D == 1)
@@ -70,12 +73,58 @@ int update(float deltatime)
 	}
 
 	ASP_IVector2 dcenter = ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-	ASP_FVector2 w1p = ASP_FVector2C(5, 5);
-	float dist = sqrtf(powf(player.position.x - w1p.x, 2) + powf(player.position.y - w1p.y, 2));
-	int height = 100 / dist;
-
+	float p_fov = PI / 2;
 	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
-	ASP_DrawLine(renderer, color, ASP_IVector2C(dcenter.x, dcenter.y - height / 2), ASP_IVector2C(dcenter.x, dcenter.y + height / 2));
+
+	ASP_FVector2 wallpoint1 = ASP_FVector2C(0, 0);
+	wallpoint1 = ASP_FVector2C(wallpoint1.x - player.position.x, wallpoint1.y - player.position.y);
+
+	ASP_FVector2 tempwallpoint1;
+	tempwallpoint1.x = cosf(player.rotation.z) * wallpoint1.x - sinf(player.rotation.z) * wallpoint1.y;
+	tempwallpoint1.y = sinf(player.rotation.z) * wallpoint1.x + cosf(player.rotation.z) * wallpoint1.y;
+	wallpoint1 = tempwallpoint1;
+
+	float dist = sqrtf(wallpoint1.x * wallpoint1.x + wallpoint1.y * wallpoint1.y) + 1.0f;
+	float dot = DotProduct(ASP_UNIT_j_F3, ASP_FVector3C(wallpoint1.x, wallpoint1.y, 0));
+	int height = 1000 / sqrtf(dot);
+	height = (height < 0) ? 0 : height;
+
+	float wallpointangle = atanf((float)(wallpoint1.x) / (float)(wallpoint1.y));
+	int wallpointssx = mapf(wallpointangle, p_fov / 2, -p_fov / 2, -SCREEN_WIDTH / 2, SCREEN_WIDTH / 2);
+	ASP_DrawLine(renderer, color, ASP_IVector2C(dcenter.x + wallpointssx, dcenter.y - height / 2), ASP_IVector2C(dcenter.x + wallpointssx, dcenter.y + height / 2));
+	ASP_DrawPixel(renderer, color, dcenter);
+
+	printf("Updated! | Dot: %f | wallpointssx: %i\n", dot, wallpointssx);
+
+	/* MINIMAP */
+	ASP_DrawRect(renderer, color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));
+	ASP_IVector2 ssp_bc = ASP_IVector2C(60, 60);
+	ASP_DrawPixel(renderer, color, ssp_bc);
+	ASP_IVector2 ssp_pp = ASP_IVector2C(ssp_bc.x + player.position.x / 10, ssp_bc.y + player.position.y / 10);
+	ASP_DrawRect(renderer, color, ASP_IVector2C(ssp_pp.x - 5, ssp_pp.y - 5), ASP_IVector2C(10, 10));
+	int ssp_ax = sinf(player.rotation.z) * 15;
+	int ssp_ay = cosf(player.rotation.z) * 15;
+	ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
+	ASP_DrawLine(renderer, color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
 
 	return 0;
+}
+
+ASP_FVector3 CrossProduct(ASP_FVector3 v, ASP_FVector3 w)
+{
+	ASP_FVector3 cp;
+
+	cp.x = v.y * w.z - v.z * w.y;
+	cp.y = v.x * w.z - v.x * w.z;
+	cp.z = v.x * w.y - v.y * w.x;
+
+	return cp;
+}
+float DotProduct(ASP_FVector3 v, ASP_FVector3 w)
+{
+	float dot;
+
+	dot = v.x * w.x + v.y * w.y + v.z * w.z;
+
+	return dot;
 }

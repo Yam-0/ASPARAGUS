@@ -101,3 +101,19 @@ ASP_Entity ASP_EntityC()
 	ASP_Entity entity;
 	return entity;
 }
+
+/* UNIT VECTORS */
+const ASP_IVector2 ASP_UNIT_i_I2 = {1, 0};
+const ASP_IVector3 ASP_UNIT_i_I3 = {1, 0, 0};
+const ASP_FVector2 ASP_UNIT_i_F2 = {1.0f, 0.0f};
+const ASP_FVector3 ASP_UNIT_i_F3 = {1.0f, 0.0f, 0.0f};
+
+const ASP_IVector2 ASP_UNIT_j_I2 = {0, 1};
+const ASP_IVector3 ASP_UNIT_j_I3 = {0, 1, 0};
+const ASP_FVector2 ASP_UNIT_j_F2 = {0.0f, 1.0f};
+const ASP_FVector3 ASP_UNIT_j_F3 = {0.0f, 1.0f, 0.0f};
+
+const ASP_IVector2 ASP_UNIT_k_I2 = {0, 0};
+const ASP_IVector3 ASP_UNIT_k_I3 = {0, 0, 1};
+const ASP_FVector2 ASP_UNIT_k_F2 = {0.0f, 0.0f};
+const ASP_FVector3 ASP_UNIT_k_F3 = {0.0f, 0.0f, 1.0f};
