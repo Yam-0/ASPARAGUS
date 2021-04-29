@@ -6,10 +6,14 @@ int update(float delta);
 int start();
 
 ASP_Entity player;
+ASP_Entity cube;
 float p_mspeed = 35;
 float p_rspeed = 0.4f;
 int iHorizontal = 0;
 int iVertical = 0;
+
+DrawEntity(ASP_Entity entity);
+ASP_Entity GenerateCubeEntity();
 
 int main(int argc, char *argv[])
 {
@@ -24,6 +28,9 @@ int start()
 	player.position.x = 0;
 	player.position.y = 0;
 	player.rotation.z = PI;
+
+	/* REGISTER GAME OBJECT */
+	cube = GenerateCubeEntity();
 	return 0;
 }
 
@@ -72,6 +79,66 @@ int update(float deltatime)
 		player.rotation.z += p_rspeed * deltatime;
 	}
 
+	DrawEntity(cube);
+
+	/* MINIMAP */
+	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
+	ASP_DrawRect(renderer, color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));
+	ASP_IVector2 ssp_bc = ASP_IVector2C(60, 60);
+	ASP_DrawPixel(renderer, color, ssp_bc);
+	ASP_IVector2 ssp_pp = ASP_IVector2C(ssp_bc.x + player.position.x / 10, ssp_bc.y + player.position.y / 10);
+	ASP_DrawRect(renderer, color, ASP_IVector2C(ssp_pp.x - 5, ssp_pp.y - 5), ASP_IVector2C(10, 10));
+	int ssp_ax = sinf(player.rotation.z) * 15;
+	int ssp_ay = cosf(player.rotation.z) * 15;
+	ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
+	ASP_DrawLine(renderer, color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
+
+	return 0;
+}
+
+ASP_Entity GenerateCubeEntity()
+{
+	int tp[8];
+
+	ASP_Vertex v1 = ASP_VertexC(ASP_FVector3C(-0.5f, -0.5f, -0.5f), tp, 0, 1);
+	ASP_Vertex v2 = ASP_VertexC(ASP_FVector3C(-0.5f, 0.5f, -0.5f), tp, 1, 1);
+	ASP_Vertex v3 = ASP_VertexC(ASP_FVector3C(0.5f, 0.5f, -0.5f), tp, 2, 1);
+	ASP_Vertex v4 = ASP_VertexC(ASP_FVector3C(0.5f, -0.5f, -0.5f), tp, 3, 1);
+	ASP_Vertex v5 = ASP_VertexC(ASP_FVector3C(-0.5f, -0.5f, 0.5f), tp, 4, 1);
+	ASP_Vertex v6 = ASP_VertexC(ASP_FVector3C(-0.5f, 0.5f, 0.5f), tp, 5, 1);
+	ASP_Vertex v7 = ASP_VertexC(ASP_FVector3C(0.5f, 0.5f, 0.5f), tp, 6, 1);
+	ASP_Vertex v8 = ASP_VertexC(ASP_FVector3C(0.5f, -0.5f, 0.5f), tp, 7, 1);
+
+	v8.pointer = &v7;
+	v7.pointer = &v6;
+	v6.pointer = &v5;
+	v5.pointer = &v4;
+	v4.pointer = &v3;
+	v3.pointer = &v2;
+	v2.pointer = &v1;
+	v1.pointer = &v8;
+
+	ASP_Entity entity;
+	strcpy(entity.name, "Cube");
+	entity.id = 420;
+	entity.position = ASP_FVector3C(1, 1, 1);
+	entity.rotation = ASP_FVector3C(0, 0, 0);
+	entity.scale = ASP_FVector3C(1, 1, 1);
+	entity.vertices[0] = v1;
+	entity.vertices[1] = v2;
+	entity.vertices[2] = v3;
+	entity.vertices[3] = v4;
+	entity.vertices[4] = v5;
+	entity.vertices[5] = v6;
+	entity.vertices[6] = v7;
+	entity.vertices[7] = v8;
+	entity.type = 1;
+
+	return entity;
+}
+
+int DrawEntity(ASP_Entity entity)
+{
 	ASP_IVector2 dcenter = ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 	float p_fov = PI / 2;
 	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
@@ -93,19 +160,6 @@ int update(float deltatime)
 	int wallpointssx = mapf(wallpointangle, p_fov / 2, -p_fov / 2, -SCREEN_WIDTH / 2, SCREEN_WIDTH / 2);
 	ASP_DrawLine(renderer, color, ASP_IVector2C(dcenter.x + wallpointssx, dcenter.y - height / 2), ASP_IVector2C(dcenter.x + wallpointssx, dcenter.y + height / 2));
 	ASP_DrawPixel(renderer, color, dcenter);
-
-	printf("Updated! | Dot: %f | wallpointssx: %i\n", dot, wallpointssx);
-
-	/* MINIMAP */
-	ASP_DrawRect(renderer, color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));
-	ASP_IVector2 ssp_bc = ASP_IVector2C(60, 60);
-	ASP_DrawPixel(renderer, color, ssp_bc);
-	ASP_IVector2 ssp_pp = ASP_IVector2C(ssp_bc.x + player.position.x / 10, ssp_bc.y + player.position.y / 10);
-	ASP_DrawRect(renderer, color, ASP_IVector2C(ssp_pp.x - 5, ssp_pp.y - 5), ASP_IVector2C(10, 10));
-	int ssp_ax = sinf(player.rotation.z) * 15;
-	int ssp_ay = cosf(player.rotation.z) * 15;
-	ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
-	ASP_DrawLine(renderer, color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
 
 	return 0;
 }
