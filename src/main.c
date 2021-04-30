@@ -137,10 +137,10 @@ int DrawEntity(ASP_Entity entity)
 
 int ProjectAndDrawLine(ASP_FVector3 v, ASP_FVector3 w, ASP_Entity entity)
 {
-
 	ASP_IVector2 dcenter = ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-	float p_fov = PI / 2;
 	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
+	float p_fov = PI / 2;
+	float depth = PI;
 
 	ASP_FVector3 vp = ASP_FVector3C(v.x - player.position.x, v.y - player.position.y, v.z - player.position.z);
 	ASP_FVector3 wp = ASP_FVector3C(w.x - player.position.x, w.y - player.position.y, w.z - player.position.z);
@@ -157,8 +157,12 @@ int ProjectAndDrawLine(ASP_FVector3 v, ASP_FVector3 w, ASP_Entity entity)
 	float wdist = sqrtf(wp.y * wp.y) + 0.1f;
 	float vdot = DotProduct(ASP_UNIT_j_F3, v);
 	float wdot = DotProduct(ASP_UNIT_j_F3, w);
-	vp.z *= (10.0f / vdist);
-	wp.z *= (10.0f / wdist);
+	vp.x *= (depth / vdist);
+	wp.x *= (depth / wdist);
+	//vp.y *= (depth / vdist);
+	//wp.y *= (depth / wdist);
+	vp.z *= (depth / vdist);
+	wp.z *= (depth / wdist);
 
 	float vaz = atanf((float)(vp.x) / (float)(vp.y));
 	float waz = atanf((float)(wp.x) / (float)(wp.y));
