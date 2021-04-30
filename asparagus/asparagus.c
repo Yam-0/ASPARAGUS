@@ -8,6 +8,7 @@ int ASP_Sleeping = 0;
 
 int ASPK_Right, ASPK_Left, ASPK_Down, ASPK_Up;
 int ASPK_W, ASPK_A, ASPK_S, ASPK_D;
+int ASPK_Q, ASPK_E;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -74,7 +75,7 @@ int ASP_init(int (*update)(float), int (*start)())
 		clock_t difference = clock() - before;
 		msec = difference * 1000 / CLOCKS_PER_SEC;
 		deltatime = (float)msec / 1000;
-		deltatime = (deltatime <= 0.001f) ? deltatime + 0.001f : deltatime;
+		deltatime = (deltatime == 0.0f) ? deltatime + 0.0001f : deltatime;
 		ASP_FPS = 1.0f / deltatime;
 	}
 
@@ -135,6 +136,10 @@ int ASP_EventHandler()
 		case SDLK_d:
 			ASPK_D = 1;
 			break;
+
+		case SDLK_q:
+			ASPK_Q = 1;
+			break;
 		}
 		break;
 
@@ -171,6 +176,9 @@ int ASP_EventHandler()
 
 		case SDLK_d:
 			ASPK_D = 0;
+			break;
+		case SDLK_q:
+			ASPK_Q = 0;
 			break;
 		}
 		break;
@@ -318,32 +326,35 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			vp = tempvp;
 			wp = tempwp;
 
-			float vdist = sqrtf(vp.y * vp.y + vp.z * vp.z + vp.x * vp.x) + 0.1f;
-			float wdist = sqrtf(wp.y * wp.y + wp.z * wp.z + wp.x * wp.x) + 0.1f;
-			float vdot = DotProduct(ASP_UNIT_j_F3, v);
-			float wdot = DotProduct(ASP_UNIT_j_F3, w);
-			vp.x *= (depth / vdist);
-			wp.x *= (depth / wdist);
-			vp.y *= (depth / vdist);
-			wp.y *= (depth / wdist);
-			vp.z *= (depth / vdist);
-			wp.z *= (depth / wdist);
+			if (vp.y >= 0 && wp.y >= 0)
+			{
+				float vdist = sqrtf(vp.y * vp.y + vp.z * vp.z + vp.x * vp.x) + 0.1f;
+				float wdist = sqrtf(wp.y * wp.y + wp.z * wp.z + wp.x * wp.x) + 0.1f;
+				float vdot = DotProduct(ASP_UNIT_j_F3, v);
+				float wdot = DotProduct(ASP_UNIT_j_F3, w);
+				vp.x *= (depth / vdist);
+				wp.x *= (depth / wdist);
+				vp.y *= (depth / vdist);
+				wp.y *= (depth / wdist);
+				vp.z *= (depth / vdist);
+				wp.z *= (depth / wdist);
 
-			float vaz = atanf((float)(vp.x) / (float)(vp.y));
-			float waz = atanf((float)(wp.x) / (float)(wp.y));
-			float vay = atanf((float)(vp.z) / (float)(vp.y));
-			float way = atanf((float)(wp.z) / (float)(wp.y));
-			int vssx = mapf(vaz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
-			int wssx = mapf(waz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
-			int vssy = mapf(vay, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
-			int wssy = mapf(way, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
-			vssx = (vssx < 0) ? 0 : vssx;
-			wssx = (wssx < 0) ? 0 : wssx;
-			vssy = (vssy < 0) ? 0 : vssy;
-			wssy = (wssy < 0) ? 0 : wssy;
+				float vaz = atanf((float)(vp.x) / (float)(vp.y));
+				float waz = atanf((float)(wp.x) / (float)(wp.y));
+				float vay = atanf((float)(vp.z) / (float)(vp.y));
+				float way = atanf((float)(wp.z) / (float)(wp.y));
+				int vssx = mapf(vaz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
+				int wssx = mapf(waz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
+				int vssy = mapf(vay, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
+				int wssy = mapf(way, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
+				vssx = (vssx < 0) ? 0 : vssx;
+				wssx = (wssx < 0) ? 0 : wssx;
+				vssy = (vssy < 0) ? 0 : vssy;
+				wssy = (wssy < 0) ? 0 : wssy;
 
-			ASP_DrawLine(renderer, RED, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
-			//tris[i] = ASP_IVector2C(vssx, vssy);
+				ASP_DrawLine(renderer, RED, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
+				//tris[i] = ASP_IVector2C(vssx, vssy);
+			}
 		}
 
 		/*

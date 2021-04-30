@@ -6,8 +6,8 @@ int update(float delta);
 int start();
 
 ASP_Entity player;
-float p_mspeed = 2;
-float p_rspeed = 1.0f;
+float p_mspeed = 4;
+float p_rspeed = 2.0f;
 int iHorizontal = 0;
 int iVertical = 0;
 
@@ -39,7 +39,7 @@ int start()
 
 int update(float deltatime)
 {
-	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
+	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
 
 	iHorizontal = 0;
 	iVertical = 0;
@@ -83,13 +83,21 @@ int update(float deltatime)
 	{
 		player.rotation.z += ra;
 	}
-	if (ASPK_Up == 1)
+	if (ASPK_Q == 1)
 	{
 		player.position.z += (1.0f * deltatime);
 	}
-	if (ASPK_Down == 1)
+	if (ASPK_E == 1)
 	{
 		player.position.z -= (1.0f * deltatime);
+	}
+	if (ASPK_Up == 1)
+	{
+		player.rotation.x += ra;
+	}
+	if (ASPK_Down == 1)
+	{
+		player.rotation.x -= ra;
 	}
 
 	ASP_DrawEntity(box1, player);
