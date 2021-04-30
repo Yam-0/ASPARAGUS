@@ -15,9 +15,6 @@ ASP_Entity box1;
 ASP_Entity box2;
 ASP_Entity pyramid1;
 
-int mouseaim;
-int esc;
-
 int main(int argc, char *argv[])
 {
 	ASP_init(&update, &start);
@@ -36,7 +33,7 @@ int start()
 	box2.position = ASP_FVector3C(1, 1, 0);
 	pyramid1 = ASP_GeneratePyramidEntity();
 	pyramid1.position = ASP_FVector3C(2, 1, 0);
-	mouseaim = 1;
+
 	return 0;
 }
 
@@ -93,11 +90,11 @@ int update(float deltatime)
 	}
 	if (ASPK_SPACE == 1)
 	{
-		player.position.z += (4.0f * deltatime);
+		player.position.z += (1.0f * deltatime);
 	}
 	if (ASPK_CTRL == 1)
 	{
-		player.position.z -= (4.0f * deltatime);
+		player.position.z -= (1.0f * deltatime);
 	}
 	if (ASPK_Up == 1)
 	{
@@ -106,28 +103,6 @@ int update(float deltatime)
 	if (ASPK_Down == 1)
 	{
 		player.rotation.x -= ra;
-	}
-	if (ASPK_ESC == 1 && ASPK_ESC != esc)
-	{
-		mouseaim = !(mouseaim == 1);
-	}
-	esc = ASPK_ESC;
-
-	if (ASP_FOCUSED && mouseaim == 1)
-	{
-		SDL_ShowCursor(0);
-		int mpx = 0;
-		int mpy = 0;
-		SDL_GetGlobalMouseState(&mpx, &mpy);
-		int dmmx = 2560 / 2 - mpx;
-		int dmmy = 1440 / 2 - mpy;
-		SDL_WarpMouseInWindow(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-		player.rotation.x += dmmy * deltatime;
-		player.rotation.z += dmmx * deltatime;
-	}
-	else
-	{
-		SDL_ShowCursor(1);
 	}
 
 	ASP_DrawEntity(box1, player);

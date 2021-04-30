@@ -1,6 +1,7 @@
 {
 	"files.associations": {
 		"asparagus.h": "c",
-		"regex": "c"
+		"regex": "c",
+		"vector": "c"
 	}
 }

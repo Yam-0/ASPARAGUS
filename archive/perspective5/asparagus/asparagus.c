@@ -9,8 +9,7 @@ int ASP_Sleeping = 0;
 int ASPK_Right, ASPK_Left, ASPK_Down, ASPK_Up;
 int ASPK_W, ASPK_A, ASPK_S, ASPK_D;
 int ASPK_Q, ASPK_E;
-int ASPK_SHIFT, ASPK_CTRL, ASPK_SPACE, ASPK_ESC;
-int ASP_FOCUSED;
+int ASPK_SHIFT, ASPK_CTRL, ASPK_SPACE;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -92,7 +91,6 @@ int ASP_EventHandler()
 {
 	SDL_Event event;
 	SDL_PollEvent(&event);
-	ASP_FOCUSED = (window == SDL_GetMouseFocus()) ? 1 : 0;
 	switch (event.type)
 	{
 	case SDL_QUIT:
@@ -159,10 +157,6 @@ int ASP_EventHandler()
 		case SDLK_SPACE:
 			ASPK_SPACE = 1;
 			break;
-
-		case SDLK_ESCAPE:
-			ASPK_ESC = 1;
-			break;
 		}
 		break;
 
@@ -219,10 +213,6 @@ int ASP_EventHandler()
 
 		case SDLK_SPACE:
 			ASPK_SPACE = 0;
-			break;
-
-		case SDLK_ESCAPE:
-			ASPK_ESC = 0;
 			break;
 		}
 		break;
@@ -312,22 +302,6 @@ int ASP_DrawRect(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 position,
 	return 0;
 }
 
-int InsideTriangle(ASP_IVector2 s, ASP_IVector2 a, ASP_IVector2 b, ASP_IVector2 c)
-{
-	int as_x = s.x - a.x;
-	int as_y = s.y - a.y;
-
-	int s_ab = (b.x - a.x) * as_y - (b.y - a.y) * as_x > 0;
-
-	if ((c.x - a.x) * as_y - (c.y - a.y) * as_x > 0 == s_ab)
-		return 0;
-
-	if ((c.x - b.x) * (s.y - b.y) - (c.y - b.y) * (s.x - b.x) > 0 != s_ab)
-		return 0;
-
-	return 1;
-}
-
 int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 {
 	ASP_FVector3 v;
@@ -347,7 +321,7 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 		face[1] = entity.faces[i][1];
 		face[2] = entity.faces[i][2];
 
-		ASP_IVector2 trig[3];
+		//ASP_IVector2 tris[3];
 
 		//Face vertex loop
 		for (int j = 0; j < 3; j++)
@@ -424,54 +398,36 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 				wssy = (wssy < 0) ? 0 : wssy;
 
 				ASP_DrawLine(renderer, RED, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
-				trig[j] = ASP_IVector2C(vssx, vssy);
-			}
-			else
-			{
-				trig[j] = ASP_IVector2C(0, 0);
+				//tris[i] = ASP_IVector2C(vssx, vssy);
 			}
 		}
 
 		/*
-		int minx = trig[0].x;
-		int miny = trig[0].y;
-		int maxx = minx;
-		int maxy = miny;
-		for (int c = 0; c < 3; c++)
+		int dx, dy = 0;
+		for (int i = 0; i < 2; i++)
 		{
-			int vertexx = trig[c].x;
-			int vertexy = trig[c].y;
-			if (vertexx < minx)
-			{
-				minx = vertexx;
-			}
-			if (vertexy < miny)
-			{
-				miny = vertexy;
-			}
-			if (vertexx > maxx)
-			{
-				maxx = vertexx;
-			}
-			if (vertexy > maxy)
-			{
-				maxy = vertexy;
-			}
+			int ax = abs(tris[i].x - tris[i + 1].x);
+			int ay = abs(tris[i].y - tris[i + 1].y);
+
+			dx = (ax > dx) ? ax : dx;
+			dy = (ay > dy) ? ay : dy;
 		}
 
-		for (int x = 0; x < maxx - minx; x++)
+		ASP_IVector2 smallest;
+		ASP_IVector2 vector = ASP_IVector2C(tris[0].x, tris[0].y);
+		for (int i = 0; i < 3; i++)
 		{
-			for (int y = 0; y < maxy - miny; y++)
+			if (tris[i].x < vector.x)
 			{
-				if (InsideTriangle(ASP_IVector2C(minx + x, miny + y), trig[0], trig[1], trig[2]) == 1)
-				{
-					ASP_DrawPixel(renderer, BLACK, ASP_IVector2C(minx + x, miny + y));
-				}
+				vector.x = tris[i].x;
+			}
+			if (tris[i].y < vector.y)
+			{
+				vector.y = tris[i].y;
 			}
 		}
+		ASP_DrawRect(renderer, BLACK, vector, ASP_IVector2C(dx, dy));
 		*/
-
-		//ASP_DrawRect(renderer, BLACK, ASP_IVector2C(minx, miny), ASP_IVector2C(maxx - minx, maxy - miny));
 	}
 
 	return 0;
