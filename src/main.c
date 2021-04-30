@@ -96,6 +96,9 @@ int update(float deltatime)
 	ASP_DrawEntity(box2, player);
 	ASP_DrawEntity(pyramid1, player);
 
+	ASP_Color RED = ASP_ColorC(255, 0, 0, 255);
+	ASP_DrawPixel(renderer, RED, ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
+
 	/* MINIMAP */
 	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
 	ASP_DrawRect(renderer, color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));

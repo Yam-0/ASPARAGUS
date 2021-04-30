@@ -266,17 +266,20 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 	ASP_FVector3 w;
 
 	ASP_IVector2 dcenter = ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
+	ASP_Color RED = ASP_ColorC(255, 0, 0, 255);
+	ASP_Color BLACK = ASP_ColorC(0, 0, 0, 255);
 	float p_fov = PI / 2;
 	float depth = PI;
 
 	//Loop over faces
 	for (int i = 0; i < entity.facecount; i++)
 	{
-		int face[3] = {
-			entity.faces[i][0],
-			entity.faces[i][1],
-			entity.faces[i][2]};
+		int face[3];
+		face[0] = entity.faces[i][0];
+		face[1] = entity.faces[i][1];
+		face[2] = entity.faces[i][2];
+
+		//ASP_IVector2 tris[3];
 
 		//Face vertex loop
 		for (int j = 0; j < 3; j++)
@@ -339,9 +342,36 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			vssy = (vssy < 0) ? 0 : vssy;
 			wssy = (wssy < 0) ? 0 : wssy;
 
-			ASP_DrawLine(renderer, color, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
-			ASP_DrawPixel(renderer, color, dcenter);
+			ASP_DrawLine(renderer, RED, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
+			//tris[i] = ASP_IVector2C(vssx, vssy);
 		}
+
+		/*
+		int dx, dy = 0;
+		for (int i = 0; i < 2; i++)
+		{
+			int ax = abs(tris[i].x - tris[i + 1].x);
+			int ay = abs(tris[i].y - tris[i + 1].y);
+
+			dx = (ax > dx) ? ax : dx;
+			dy = (ay > dy) ? ay : dy;
+		}
+
+		ASP_IVector2 smallest;
+		ASP_IVector2 vector = ASP_IVector2C(tris[0].x, tris[0].y);
+		for (int i = 0; i < 3; i++)
+		{
+			if (tris[i].x < vector.x)
+			{
+				vector.x = tris[i].x;
+			}
+			if (tris[i].y < vector.y)
+			{
+				vector.y = tris[i].y;
+			}
+		}
+		ASP_DrawRect(renderer, BLACK, vector, ASP_IVector2C(dx, dy));
+		*/
 	}
 
 	return 0;
