@@ -6,14 +6,13 @@ int update(float delta);
 int start();
 
 ASP_Entity player;
-ASP_Entity cube;
-float p_mspeed = 35;
-float p_rspeed = 0.4f;
+float p_mspeed = 10;
+float p_rspeed = 1.0f;
 int iHorizontal = 0;
 int iVertical = 0;
 
 DrawEntity(ASP_Entity entity);
-ASP_Entity GenerateCubeEntity();
+int ProjectAndDrawLine(ASP_FVector3 v, ASP_FVector3 w, ASP_Entity frustum);
 
 int main(int argc, char *argv[])
 {
@@ -28,15 +27,12 @@ int start()
 	player.position.x = 0;
 	player.position.y = 0;
 	player.rotation.z = PI;
-
-	/* REGISTER GAME OBJECT */
-	cube = GenerateCubeEntity();
 	return 0;
 }
 
 int update(float deltatime)
 {
-	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
+	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
 
 	iHorizontal = 0;
 	iVertical = 0;
@@ -70,16 +66,18 @@ int update(float deltatime)
 	player.position.x += (p_vx * deltatime);
 	player.position.y += (p_vy * deltatime);
 
+	float ra = (float)(p_rspeed * deltatime);
+
 	if (ASPK_Right == 1)
 	{
-		player.rotation.z -= p_rspeed * deltatime;
+		player.rotation.z -= ra;
 	}
 	if (ASPK_Left == 1)
 	{
-		player.rotation.z += p_rspeed * deltatime;
+		player.rotation.z += ra;
 	}
 
-	DrawEntity(cube);
+	DrawEntity(ASP_EntityC());
 
 	/* MINIMAP */
 	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
@@ -96,70 +94,70 @@ int update(float deltatime)
 	return 0;
 }
 
-ASP_Entity GenerateCubeEntity()
+int DrawEntity(ASP_Entity entity)
 {
-	int tp[8];
+	ASP_FVector3 vertices[8];
 
-	ASP_Vertex v1 = ASP_VertexC(ASP_FVector3C(-0.5f, -0.5f, -0.5f), tp, 0, 1);
-	ASP_Vertex v2 = ASP_VertexC(ASP_FVector3C(-0.5f, 0.5f, -0.5f), tp, 1, 1);
-	ASP_Vertex v3 = ASP_VertexC(ASP_FVector3C(0.5f, 0.5f, -0.5f), tp, 2, 1);
-	ASP_Vertex v4 = ASP_VertexC(ASP_FVector3C(0.5f, -0.5f, -0.5f), tp, 3, 1);
-	ASP_Vertex v5 = ASP_VertexC(ASP_FVector3C(-0.5f, -0.5f, 0.5f), tp, 4, 1);
-	ASP_Vertex v6 = ASP_VertexC(ASP_FVector3C(-0.5f, 0.5f, 0.5f), tp, 5, 1);
-	ASP_Vertex v7 = ASP_VertexC(ASP_FVector3C(0.5f, 0.5f, 0.5f), tp, 6, 1);
-	ASP_Vertex v8 = ASP_VertexC(ASP_FVector3C(0.5f, -0.5f, 0.5f), tp, 7, 1);
+	vertices[0] = ASP_FVector3C(0.5f, 0.5f, -0.5f);
+	vertices[1] = ASP_FVector3C(-0.5f, 0.5f, -0.5f);
+	vertices[2] = ASP_FVector3C(-0.5f, -0.5f, -0.5f);
+	vertices[3] = ASP_FVector3C(0.5f, -0.5f, -0.5f);
+	vertices[4] = ASP_FVector3C(0.5f, 0.5f, 0.5f);
+	vertices[5] = ASP_FVector3C(-0.5f, 0.5f, 0.5f);
+	vertices[6] = ASP_FVector3C(-0.5f, -0.5f, 0.5f);
+	vertices[7] = ASP_FVector3C(0.5f, -0.5f, 0.5f);
 
-	v8.pointer = &v7;
-	v7.pointer = &v6;
-	v6.pointer = &v5;
-	v5.pointer = &v4;
-	v4.pointer = &v3;
-	v3.pointer = &v2;
-	v2.pointer = &v1;
-	v1.pointer = &v8;
+	int faces[3][12] =
+		{{0, 1, 3},
+		 {1, 2, 3},
+		 {0, 1, 5},
+		 {1, 4, 5},
+		 {1, 2, 5},
+		 {2, 6, 5},
+		 {3, 2, 6},
+		 {3, 7, 6},
+		 {0, 3, 7},
+		 {0, 4, 7},
+		 {4, 5, 6},
+		 {4, 6, 7}};
 
-	ASP_Entity entity;
-	strcpy(entity.name, "Cube");
-	entity.id = 420;
-	entity.position = ASP_FVector3C(1, 1, 1);
-	entity.rotation = ASP_FVector3C(0, 0, 0);
-	entity.scale = ASP_FVector3C(1, 1, 1);
-	entity.vertices[0] = v1;
-	entity.vertices[1] = v2;
-	entity.vertices[2] = v3;
-	entity.vertices[3] = v4;
-	entity.vertices[4] = v5;
-	entity.vertices[5] = v6;
-	entity.vertices[6] = v7;
-	entity.vertices[7] = v8;
-	entity.type = 1;
+	for (int i = 0; i < 12; i++)
+	{
+		int face[3];
 
-	return entity;
+		face[0] = faces[0][i];
+		face[1] = faces[1][i];
+		face[2] = faces[2][i];
+
+		ProjectAndDrawLine(vertices[face[0]], vertices[face[1]], player);
+		ProjectAndDrawLine(vertices[face[1]], vertices[face[2]], player);
+		ProjectAndDrawLine(vertices[face[2]], vertices[face[0]], player);
+	}
+
+	return 0;
 }
 
-int DrawEntity(ASP_Entity entity)
+int ProjectAndDrawLine(ASP_FVector3 v, ASP_FVector3 w, ASP_Entity frustum)
 {
 	ASP_IVector2 dcenter = ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 	float p_fov = PI / 2;
 	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
 
-	ASP_FVector2 wallpoint1 = ASP_FVector2C(0, 0);
-	wallpoint1 = ASP_FVector2C(wallpoint1.x - player.position.x, wallpoint1.y - player.position.y);
+	ASP_FVector2 linepos = ASP_FVector2C(v.x, v.y);
+	linepos = ASP_FVector2C(linepos.x - player.position.x, linepos.y - player.position.y);
 
-	ASP_FVector2 tempwallpoint1;
-	tempwallpoint1.x = cosf(player.rotation.z) * wallpoint1.x - sinf(player.rotation.z) * wallpoint1.y;
-	tempwallpoint1.y = sinf(player.rotation.z) * wallpoint1.x + cosf(player.rotation.z) * wallpoint1.y;
-	wallpoint1 = tempwallpoint1;
+	ASP_FVector2 templinepos;
+	templinepos.x = cosf(player.rotation.z) * linepos.x - sinf(player.rotation.z) * linepos.y;
+	templinepos.y = sinf(player.rotation.z) * linepos.x + cosf(player.rotation.z) * linepos.y;
+	linepos = templinepos;
 
-	float dist = sqrtf(wallpoint1.x * wallpoint1.x + wallpoint1.y * wallpoint1.y) + 1.0f;
-	float dot = DotProduct(ASP_UNIT_j_F3, ASP_FVector3C(wallpoint1.x, wallpoint1.y, 0));
-	int height = 1000 / sqrtf(dot);
+	//float dist = sqrtf(linepos.x * linepos.x + linepos.y * linepos.y) + 1.0f;
+	float dot = DotProduct(ASP_UNIT_j_F3, ASP_FVector3C(linepos.x, linepos.y, 0));
+	int height = 1000 / dot;
 	height = (height < 0) ? 0 : height;
 
-	float wallpointangle = atanf((float)(wallpoint1.x) / (float)(wallpoint1.y));
-	int wallpointssx = mapf(wallpointangle, p_fov / 2, -p_fov / 2, -SCREEN_WIDTH / 2, SCREEN_WIDTH / 2);
-	ASP_DrawLine(renderer, color, ASP_IVector2C(dcenter.x + wallpointssx, dcenter.y - height / 2), ASP_IVector2C(dcenter.x + wallpointssx, dcenter.y + height / 2));
+	float lineangle = atanf((float)(linepos.x) / (float)(linepos.y));
+	int linessx = mapf(lineangle, p_fov / 2, -p_fov / 2, -SCREEN_WIDTH / 2, SCREEN_WIDTH / 2);
+	ASP_DrawLine(renderer, color, ASP_IVector2C(dcenter.x + linessx, dcenter.y - height / 2), ASP_IVector2C(dcenter.x + linessx, dcenter.y + height / 2));
 	ASP_DrawPixel(renderer, color, dcenter);
-
-	return 0;
 }

@@ -14,7 +14,7 @@ SDL_Renderer *renderer;
 SDL_Texture *btexture;
 
 float PI = 3.141592f;
-float ASP_FPS;
+int ASP_FPS;
 
 int ASP_init(int (*update)(float), int (*start)())
 {
