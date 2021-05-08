@@ -15,6 +15,8 @@ ASP_Entity box1;
 ASP_Entity box2;
 ASP_Entity pyramid1;
 
+#define IMG_PATH "../data/goblin.png"
+
 int main(int argc, char *argv[])
 {
 	ASP_init(&update, &start);
@@ -34,12 +36,13 @@ int start()
 	pyramid1 = ASP_GeneratePyramidEntity();
 	pyramid1.position = ASP_FVector3C(2, 1, 0);
 	ASP_Mouseaim = 1;
+
 	return 0;
 }
 
 int update(float deltatime)
 {
-	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
+	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
 
 	iHorizontal = 0;
 	iVertical = 0;
@@ -85,6 +88,14 @@ int update(float deltatime)
 	if (ASPKP_ESC == 1)
 	{
 		ASP_Mouseaim = !(ASP_Mouseaim == 1);
+		if (ASP_Mouseaim == 1)
+		{
+			SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+		}
+		else
+		{
+			SDL_SetWindowFullscreen(window, 0);
+		}
 	}
 
 	if (ASP_Mouseaim == 1)
@@ -134,6 +145,15 @@ int update(float deltatime)
 	if (ASPK_Q == 1)
 	{
 		box1.scale.y += 5 * deltatime;
+	}
+
+	ASP_Color BLUE = ASP_ColorC(0, 0, 122, 255);
+	for (int i = 0; i < SCREEN_WIDTH; i++)
+	{
+		for (int j = 0; j < SCREEN_HEIGHT; j++)
+		{
+			//ASP_DrawPixel(renderer, BLUE, ASP_IVector2C(i, j));
+		}
 	}
 
 	ASP_DrawEntity(box1, player);

@@ -18,6 +18,8 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *btexture;
 
+int *activetexture;
+
 float PI = 3.141592f;
 int ASP_FPS;
 
@@ -58,6 +60,9 @@ int ASP_init(int (*update)(float), int (*start)())
 	ASP_Running = 1;
 
 	SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
+	btexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	activetexture = 0;
 
 	//Update loop
 	while (ASP_Running)
@@ -68,12 +73,13 @@ int ASP_init(int (*update)(float), int (*start)())
 		ASP_EventHandler();
 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		SDL_SetRenderTarget(renderer, btexture);
 		SDL_RenderClear(renderer);
 
 		//Update callback
 		(*update)(deltatime);
 
-		ASP_Render(renderer, window);
+		ASP_Render(renderer, window, btexture);
 
 		//Frame time & deltatime
 		clock_t difference = clock() - before;
@@ -83,6 +89,7 @@ int ASP_init(int (*update)(float), int (*start)())
 		ASP_FPS = 1.0f / deltatime;
 	}
 
+	SDL_DestroyTexture(btexture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -153,8 +160,10 @@ int ASP_EventHandler()
 	return 0;
 }
 
-int ASP_Render(SDL_Renderer *renderer, SDL_Window *window)
+int ASP_Render(SDL_Renderer *renderer, SDL_Window *window, SDL_Texture *texture)
 {
+	SDL_SetRenderTarget(renderer, NULL);
+	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
 	return 0;
 }
@@ -184,7 +193,6 @@ int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p)
 {
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 	SDL_RenderDrawPoint(renderer, p.x, p.y);
-
 	return 0;
 }
 int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_IVector2 p2)

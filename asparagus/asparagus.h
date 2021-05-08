@@ -17,7 +17,7 @@ int ASP_init(int (*update)(float), int (*start)());
 int ASP_sleep(int m_secs);
 
 /* Render to window */
-int ASP_Render(SDL_Renderer *renderer, SDL_Window *window);
+int ASP_Render(SDL_Renderer *renderer, SDL_Window *window, SDL_Texture *texture);
 
 /* Asparagus internal event handler */
 int ASP_EventHandler();
