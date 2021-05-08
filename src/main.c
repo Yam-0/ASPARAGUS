@@ -60,11 +60,6 @@ int update(float deltatime)
 	{
 		iVertical -= 1;
 	}
-	if (ASPK_SHIFT == 1)
-	{
-		iVertical *= 2;
-		iHorizontal *= 2;
-	}
 
 	float p_x1 = sinf(player.rotation.z) * p_mspeed;
 	float p_y1 = cosf(player.rotation.z) * p_mspeed;
@@ -98,21 +93,47 @@ int update(float deltatime)
 		player.rotation.x += ASPML_DY * deltatime;
 	}
 
-	if (ASPK_Up == 1)
+	if (ASPK_Up == 1 && ASPK_SHIFT != 1)
 	{
 		box1.position.y -= 5 * deltatime;
 	}
-	if (ASPK_Down == 1)
+	if (ASPK_Down == 1 && ASPK_SHIFT != 1)
 	{
 		box1.position.y += 5 * deltatime;
 	}
-	if (ASPK_Right == 1)
+	if (ASPK_Right == 1 && ASPK_SHIFT != 1)
 	{
 		box1.position.x += 5 * deltatime;
 	}
-	if (ASPK_Left == 1)
+	if (ASPK_Left == 1 && ASPK_SHIFT != 1)
 	{
 		box1.position.x -= 5 * deltatime;
+	}
+
+	if (ASPK_Up == 1 && ASPK_SHIFT == 1)
+	{
+		box1.rotation.x -= 5 * deltatime;
+	}
+	if (ASPK_Down == 1 && ASPK_SHIFT == 1)
+	{
+		box1.rotation.x += 5 * deltatime;
+	}
+	if (ASPK_Right == 1 && ASPK_SHIFT == 1)
+	{
+		box1.rotation.y += 5 * deltatime;
+	}
+	if (ASPK_Left == 1 && ASPK_SHIFT == 1)
+	{
+		box1.rotation.y -= 5 * deltatime;
+	}
+
+	if (ASPK_E == 1)
+	{
+		box1.scale.y -= 5 * deltatime;
+	}
+	if (ASPK_Q == 1)
+	{
+		box1.scale.y += 5 * deltatime;
 	}
 
 	ASP_DrawEntity(box1, player);

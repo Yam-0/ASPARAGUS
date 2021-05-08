@@ -231,20 +231,32 @@ int ASP_DrawRect(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 position,
 	return 0;
 }
 
-int InsideTriangle(ASP_IVector2 s, ASP_IVector2 a, ASP_IVector2 b, ASP_IVector2 c)
+ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
 {
-	int as_x = s.x - a.x;
-	int as_y = s.y - a.y;
+	ASP_FVector3 tempvector = vector;
 
-	int s_ab = (b.x - a.x) * as_y - (b.y - a.y) * as_x > 0;
+	switch (axis)
+	{
+	case 0: //x
+		tempvector.z = cosf(a) * vector.z - sinf(a) * vector.y;
+		tempvector.y = sinf(a) * vector.z + cosf(a) * vector.y;
+		break;
+	case 1: //y
+		tempvector.x = cosf(a) * vector.z - sinf(a) * vector.x;
+		tempvector.z = sinf(a) * vector.z + cosf(a) * vector.x;
+		break;
+	case 2: //z
+		tempvector.x = cosf(a) * vector.x - sinf(a) * vector.y;
+		tempvector.y = sinf(a) * vector.x + cosf(a) * vector.y;
+		break;
 
-	if ((c.x - a.x) * as_y - (c.y - a.y) * as_x > 0 == s_ab)
-		return 0;
+	default:
+		break;
+	}
 
-	if ((c.x - b.x) * (s.y - b.y) - (c.y - b.y) * (s.x - b.x) > 0 != s_ab)
-		return 0;
+	vector = tempvector;
 
-	return 1;
+	return vector;
 }
 
 int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
@@ -266,8 +278,6 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 		face[1] = entity.faces[i][1];
 		face[2] = entity.faces[i][2];
 
-		ASP_IVector2 trig[3];
-
 		//Face vertex loop
 		for (int j = 0; j < 3; j++)
 		{
@@ -287,34 +297,40 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 				w = entity.vertices[face[0]];
 			}
 
-			ASP_FVector3 vp = ASP_FVector3C(
-				v.x - camera.position.x + entity.position.x,
-				v.y - camera.position.y + entity.position.y,
-				v.z - camera.position.z + entity.position.z);
-			ASP_FVector3 wp = ASP_FVector3C(
-				w.x - camera.position.x + entity.position.x,
-				w.y - camera.position.y + entity.position.y,
-				w.z - camera.position.z + entity.position.z);
+			ASP_FVector3 vp = v;
+			ASP_FVector3 wp = w;
 
-			/* Z AXIS */
-			ASP_FVector3 tempvp = vp;
-			ASP_FVector3 tempwp = wp;
-			tempvp.x = cosf(camera.rotation.z) * vp.x - sinf(camera.rotation.z) * vp.y;
-			tempvp.y = sinf(camera.rotation.z) * vp.x + cosf(camera.rotation.z) * vp.y;
-			tempwp.x = cosf(camera.rotation.z) * wp.x - sinf(camera.rotation.z) * wp.y;
-			tempwp.y = sinf(camera.rotation.z) * wp.x + cosf(camera.rotation.z) * wp.y;
-			vp = tempvp;
-			wp = tempwp;
+			/*ORIGIN RELATIVE SCALING */
+			vp.x *= entity.scale.x;
+			vp.y *= entity.scale.y;
+			vp.z *= entity.scale.z;
+			wp.x *= entity.scale.x;
+			wp.y *= entity.scale.y;
+			wp.z *= entity.scale.z;
 
-			/* X AXIS */
-			tempvp = vp;
-			tempwp = wp;
-			tempvp.z = cosf(camera.rotation.x) * vp.z - sinf(camera.rotation.x) * vp.y;
-			tempvp.y = sinf(camera.rotation.x) * vp.z + cosf(camera.rotation.x) * vp.y;
-			tempwp.z = cosf(camera.rotation.x) * wp.z - sinf(camera.rotation.x) * wp.y;
-			tempwp.y = sinf(camera.rotation.x) * wp.z + cosf(camera.rotation.x) * wp.y;
-			vp = tempvp;
-			wp = tempwp;
+			/*ORIGIN RELATIVE ROTATION */
+			vp = ASP_RotateVector(entity.rotation.x, vp, 0);
+			wp = ASP_RotateVector(entity.rotation.x, wp, 0);
+			vp = ASP_RotateVector(entity.rotation.y, vp, 1);
+			wp = ASP_RotateVector(entity.rotation.y, wp, 1);
+			vp = ASP_RotateVector(entity.rotation.z, vp, 2);
+			wp = ASP_RotateVector(entity.rotation.z, wp, 2);
+
+			/* MOVING TO CAMERA RELATIVE POSITION */
+			vp.x = vp.x - camera.position.x + entity.position.x;
+			vp.y = vp.y - camera.position.y + entity.position.y;
+			vp.z = vp.z - camera.position.z + entity.position.z;
+			wp.x = wp.x - camera.position.x + entity.position.x;
+			wp.y = wp.y - camera.position.y + entity.position.y;
+			wp.z = wp.z - camera.position.z + entity.position.z;
+
+			/* Z AXIS ROTATION AROUND CAMERA */
+			vp = ASP_RotateVector(camera.rotation.z, vp, 2);
+			wp = ASP_RotateVector(camera.rotation.z, wp, 2);
+
+			/* X AXIS ROTATION AROUND CAMERA */
+			vp = ASP_RotateVector(camera.rotation.x, vp, 0);
+			wp = ASP_RotateVector(camera.rotation.x, wp, 0);
 
 			if (vp.y >= 0 && wp.y >= 0)
 			{
@@ -343,54 +359,8 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 				wssy = (wssy < 0) ? 0 : wssy;
 
 				ASP_DrawLine(renderer, RED, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
-				trig[j] = ASP_IVector2C(vssx, vssy);
-			}
-			else
-			{
-				trig[j] = ASP_IVector2C(0, 0);
 			}
 		}
-
-		/*
-		int minx = trig[0].x;
-		int miny = trig[0].y;
-		int maxx = minx;
-		int maxy = miny;
-		for (int c = 0; c < 3; c++)
-		{
-			int vertexx = trig[c].x;
-			int vertexy = trig[c].y;
-			if (vertexx < minx)
-			{
-				minx = vertexx;
-			}
-			if (vertexy < miny)
-			{
-				miny = vertexy;
-			}
-			if (vertexx > maxx)
-			{
-				maxx = vertexx;
-			}
-			if (vertexy > maxy)
-			{
-				maxy = vertexy;
-			}
-		}
-
-		for (int x = 0; x < maxx - minx; x++)
-		{
-			for (int y = 0; y < maxy - miny; y++)
-			{
-				if (InsideTriangle(ASP_IVector2C(minx + x, miny + y), trig[0], trig[1], trig[2]) == 1)
-				{
-					ASP_DrawPixel(renderer, BLACK, ASP_IVector2C(minx + x, miny + y));
-				}
-			}
-		}
-		*/
-
-		//ASP_DrawRect(renderer, BLACK, ASP_IVector2C(minx, miny), ASP_IVector2C(maxx - minx, maxy - miny));
 	}
 
 	return 0;
