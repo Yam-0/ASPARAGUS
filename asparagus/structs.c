@@ -92,9 +92,9 @@ typedef struct
 	ASP_FVector3 position;
 	ASP_FVector3 rotation;
 	ASP_FVector3 scale;
-	ASP_FVector3 vertices[64];
+	ASP_FVector3 vertices[128];
 	int vertexcount;
-	int faces[64][3];
+	int faces[128][3];
 	int facecount;
 	int type;
 } ASP_Entity;

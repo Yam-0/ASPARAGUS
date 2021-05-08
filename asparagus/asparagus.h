@@ -8,6 +8,7 @@
 #include "../sdl/include/SDL2/SDL.h"
 #include "./structs.c"
 #include "./aspgeneric.c"
+#include "./aspkeys.c"
 
 /* Initiate asparagus with callback pointers */
 int ASP_init(int (*update)(float), int (*start)());

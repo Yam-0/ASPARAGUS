@@ -2,6 +2,7 @@
 	"files.associations": {
 		"asparagus.h": "c",
 		"regex": "c",
-		"vector": "c"
+		"vector": "c",
+		"*.idl": "c"
 	}
 }

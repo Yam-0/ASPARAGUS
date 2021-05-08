@@ -2,15 +2,17 @@
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
+int DISPLAY_WIDTH;
+int DISPLAY_HEIGHT;
 
 int ASP_Running = 0;
 int ASP_Sleeping = 0;
-
-int ASPK_Right, ASPK_Left, ASPK_Down, ASPK_Up;
-int ASPK_W, ASPK_A, ASPK_S, ASPK_D;
-int ASPK_Q, ASPK_E;
-int ASPK_SHIFT, ASPK_CTRL, ASPK_SPACE, ASPK_ESC;
+int ASP_Mouseaim = 0;
+int ASP_KEYBOARDFOCUSED;
+int ASP_MOUSEFOCUSED;
 int ASP_FOCUSED;
+
+int ASPML_X, ASPML_Y, ASPML_DX, ASPML_DY = 0;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -90,9 +92,38 @@ int ASP_init(int (*update)(float), int (*start)())
 
 int ASP_EventHandler()
 {
+	ASP_ResetKeyStates();
 	SDL_Event event;
 	SDL_PollEvent(&event);
-	ASP_FOCUSED = (window == SDL_GetMouseFocus()) ? 1 : 0;
+
+	ASP_KEYBOARDFOCUSED = (window == SDL_GetKeyboardFocus()) ? 1 : 0;
+	ASP_MOUSEFOCUSED = (window == SDL_GetMouseFocus()) ? 1 : 0;
+
+	SDL_DisplayMode DM;
+	SDL_GetCurrentDisplayMode(0, &DM);
+	DISPLAY_WIDTH = DM.w;
+	DISPLAY_HEIGHT = DM.h;
+
+	int tmplx, tmply = 0;
+	SDL_GetMouseState(&tmplx, &tmply);
+	SDL_ShowCursor(!ASP_Mouseaim);
+	ASPML_DX, ASPML_DY = 0;
+	if (ASP_MOUSEFOCUSED == 1 && ASP_KEYBOARDFOCUSED == 1)
+	{
+		ASPML_DX = ASPML_X - tmplx;
+		ASPML_DY = ASPML_Y - tmply;
+
+		if (ASP_Mouseaim == 1)
+		{
+			SDL_WarpMouseInWindow(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+			tmplx = SCREEN_WIDTH / 2;
+			tmply = SCREEN_HEIGHT / 2;
+		}
+	}
+
+	ASPML_X = tmplx;
+	ASPML_Y = tmply;
+
 	switch (event.type)
 	{
 	case SDL_QUIT:
@@ -102,129 +133,17 @@ int ASP_EventHandler()
 	case SDL_MOUSEBUTTONDOWN:
 		break;
 
-	case SDL_MOUSEMOTION:
+	case SDL_MOUSEMOTION:;
+
 		break;
 
 	case SDL_KEYDOWN:
-		switch (event.key.keysym.sym)
-		{
-		case SDLK_RIGHT:
-			ASPK_Right = 1;
-			break;
-
-		case SDLK_LEFT:
-			ASPK_Left = 1;
-			break;
-
-		case SDLK_DOWN:
-			ASPK_Down = 1;
-			break;
-
-		case SDLK_UP:
-			ASPK_Up = 1;
-			break;
-
-		case SDLK_w:
-			ASPK_W = 1;
-			break;
-
-		case SDLK_a:
-			ASPK_A = 1;
-			break;
-
-		case SDLK_s:
-			ASPK_S = 1;
-			break;
-
-		case SDLK_d:
-			ASPK_D = 1;
-			break;
-
-		case SDLK_q:
-			ASPK_Q = 1;
-			break;
-
-		case SDLK_e:
-			ASPK_E = 1;
-			break;
-
-		case SDLK_LSHIFT:
-			ASPK_SHIFT = 1;
-			break;
-
-		case SDLK_LCTRL:
-			ASPK_CTRL = 1;
-			break;
-
-		case SDLK_SPACE:
-			ASPK_SPACE = 1;
-			break;
-
-		case SDLK_ESCAPE:
-			ASPK_ESC = 1;
-			break;
-		}
+		if (event.key.repeat == 0)
+			ASP_SetKeyState(event.key.keysym.sym, 1);
 		break;
 
 	case SDL_KEYUP:
-		switch (event.key.keysym.sym)
-		{
-		case SDLK_RIGHT:
-			ASPK_Right = 0;
-			break;
-
-		case SDLK_LEFT:
-			ASPK_Left = 0;
-			break;
-
-		case SDLK_DOWN:
-			ASPK_Down = 0;
-			break;
-
-		case SDLK_UP:
-			ASPK_Up = 0;
-			break;
-
-		case SDLK_w:
-			ASPK_W = 0;
-			break;
-
-		case SDLK_a:
-			ASPK_A = 0;
-			break;
-
-		case SDLK_s:
-			ASPK_S = 0;
-			break;
-
-		case SDLK_d:
-			ASPK_D = 0;
-			break;
-
-		case SDLK_q:
-			ASPK_Q = 0;
-			break;
-
-		case SDLK_e:
-			ASPK_E = 0;
-			break;
-
-		case SDLK_LSHIFT:
-			ASPK_SHIFT = 0;
-			break;
-
-		case SDLK_LCTRL:
-			ASPK_CTRL = 0;
-			break;
-
-		case SDLK_SPACE:
-			ASPK_SPACE = 0;
-			break;
-
-		case SDLK_ESCAPE:
-			ASPK_ESC = 0;
-			break;
-		}
+		ASP_SetKeyState(event.key.keysym.sym, 0);
 		break;
 
 	default:

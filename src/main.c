@@ -15,9 +15,6 @@ ASP_Entity box1;
 ASP_Entity box2;
 ASP_Entity pyramid1;
 
-int mouseaim;
-int esc;
-
 int main(int argc, char *argv[])
 {
 	ASP_init(&update, &start);
@@ -36,13 +33,13 @@ int start()
 	box2.position = ASP_FVector3C(1, 1, 0);
 	pyramid1 = ASP_GeneratePyramidEntity();
 	pyramid1.position = ASP_FVector3C(2, 1, 0);
-	mouseaim = 1;
+	ASP_Mouseaim = 1;
 	return 0;
 }
 
 int update(float deltatime)
 {
-	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
+	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
 
 	iHorizontal = 0;
 	iVertical = 0;
@@ -81,16 +78,6 @@ int update(float deltatime)
 	player.position.x += (p_vx * deltatime);
 	player.position.y += (p_vy * deltatime);
 
-	float ra = (float)(p_rspeed * deltatime);
-
-	if (ASPK_Right == 1)
-	{
-		player.rotation.z -= ra;
-	}
-	if (ASPK_Left == 1)
-	{
-		player.rotation.z += ra;
-	}
 	if (ASPK_SPACE == 1)
 	{
 		player.position.z += (4.0f * deltatime);
@@ -99,35 +86,33 @@ int update(float deltatime)
 	{
 		player.position.z -= (4.0f * deltatime);
 	}
+
+	if (ASPKP_ESC == 1)
+	{
+		ASP_Mouseaim = !(ASP_Mouseaim == 1);
+	}
+
+	if (ASP_Mouseaim == 1)
+	{
+		player.rotation.z += ASPML_DX * deltatime;
+		player.rotation.x += ASPML_DY * deltatime;
+	}
+
 	if (ASPK_Up == 1)
 	{
-		player.rotation.x += ra;
+		box1.position.y -= 5 * deltatime;
 	}
 	if (ASPK_Down == 1)
 	{
-		player.rotation.x -= ra;
+		box1.position.y += 5 * deltatime;
 	}
-	if (ASPK_ESC == 1 && ASPK_ESC != esc)
+	if (ASPK_Right == 1)
 	{
-		mouseaim = !(mouseaim == 1);
+		box1.position.x += 5 * deltatime;
 	}
-	esc = ASPK_ESC;
-
-	if (ASP_FOCUSED && mouseaim == 1)
+	if (ASPK_Left == 1)
 	{
-		SDL_ShowCursor(0);
-		int mpx = 0;
-		int mpy = 0;
-		SDL_GetGlobalMouseState(&mpx, &mpy);
-		int dmmx = 2560 / 2 - mpx;
-		int dmmy = 1440 / 2 - mpy;
-		SDL_WarpMouseInWindow(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-		player.rotation.x += dmmy * deltatime;
-		player.rotation.z += dmmx * deltatime;
-	}
-	else
-	{
-		SDL_ShowCursor(1);
+		box1.position.x -= 5 * deltatime;
 	}
 
 	ASP_DrawEntity(box1, player);
