@@ -238,16 +238,19 @@ ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
 	switch (axis)
 	{
 	case 0: //x
+		tempvector.x = vector.x;
 		tempvector.z = cosf(a) * vector.z - sinf(a) * vector.y;
 		tempvector.y = sinf(a) * vector.z + cosf(a) * vector.y;
 		break;
 	case 1: //y
 		tempvector.x = cosf(a) * vector.z - sinf(a) * vector.x;
+		tempvector.y = vector.y;
 		tempvector.z = sinf(a) * vector.z + cosf(a) * vector.x;
 		break;
 	case 2: //z
 		tempvector.x = cosf(a) * vector.x - sinf(a) * vector.y;
 		tempvector.y = sinf(a) * vector.x + cosf(a) * vector.y;
+		tempvector.z = vector.z;
 		break;
 
 	default:
@@ -264,7 +267,6 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 	ASP_FVector3 v;
 	ASP_FVector3 w;
 
-	ASP_IVector2 dcenter = ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 	ASP_Color RED = ASP_ColorC(255, 0, 0, 255);
 	ASP_Color BLACK = ASP_ColorC(0, 0, 0, 255);
 	float p_fov = PI / 2;
@@ -300,7 +302,7 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			ASP_FVector3 vp = v;
 			ASP_FVector3 wp = w;
 
-			/*ORIGIN RELATIVE SCALING */
+			/* ORIGIN RELATIVE SCALING */
 			vp.x *= entity.scale.x;
 			vp.y *= entity.scale.y;
 			vp.z *= entity.scale.z;
@@ -308,7 +310,7 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			wp.y *= entity.scale.y;
 			wp.z *= entity.scale.z;
 
-			/*ORIGIN RELATIVE ROTATION */
+			/* ORIGIN RELATIVE ROTATION */
 			vp = ASP_RotateVector(entity.rotation.x, vp, 0);
 			wp = ASP_RotateVector(entity.rotation.x, wp, 0);
 			vp = ASP_RotateVector(entity.rotation.y, vp, 1);
@@ -324,27 +326,22 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			wp.y = wp.y - camera.position.y + entity.position.y;
 			wp.z = wp.z - camera.position.z + entity.position.z;
 
-			/* Z AXIS ROTATION AROUND CAMERA */
+			/* AXIS ROTATION AROUND CAMERA */
 			vp = ASP_RotateVector(camera.rotation.z, vp, 2);
 			wp = ASP_RotateVector(camera.rotation.z, wp, 2);
-
-			/* X AXIS ROTATION AROUND CAMERA */
 			vp = ASP_RotateVector(camera.rotation.x, vp, 0);
 			wp = ASP_RotateVector(camera.rotation.x, wp, 0);
 
 			if (vp.y >= 0 && wp.y >= 0)
 			{
-				float vdist = sqrtf(vp.y * vp.y + vp.z * vp.z + vp.x * vp.x) + 0.1f;
-				float wdist = sqrtf(wp.y * wp.y + wp.z * wp.z + wp.x * wp.x) + 0.1f;
-				float vdot = DotProduct(ASP_UNIT_j_F3, v);
-				float wdot = DotProduct(ASP_UNIT_j_F3, w);
+				float vdist = sqrtf(vp.y * vp.y + vp.z * vp.z + vp.x * vp.x) + 0.0001f;
+				float wdist = sqrtf(wp.y * wp.y + wp.z * wp.z + wp.x * wp.x) + 0.0001f;
 				vp.x *= (depth / vdist);
 				wp.x *= (depth / wdist);
 				vp.y *= (depth / vdist);
 				wp.y *= (depth / wdist);
 				vp.z *= (depth / vdist);
 				wp.z *= (depth / wdist);
-
 				float vaz = atanf((float)(vp.x) / (float)(vp.y));
 				float waz = atanf((float)(wp.x) / (float)(wp.y));
 				float vay = atanf((float)(vp.z) / (float)(vp.y));
