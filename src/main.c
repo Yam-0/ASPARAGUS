@@ -13,7 +13,10 @@ int iVertical = 0;
 
 ASP_Entity box1;
 ASP_Entity box2;
+ASP_Entity bullet;
 ASP_Entity pyramid1;
+
+ASP_FVector3 bulletspeed;
 
 #define IMG_PATH "../data/goblin.png"
 
@@ -33,6 +36,9 @@ int start()
 	box1 = ASP_GenerateBoxEntity();
 	box2 = ASP_GenerateBoxEntity();
 	box2.position = ASP_FVector3C(1, 1, 0);
+	bullet = ASP_GenerateBoxEntity();
+	bullet.position = ASP_FVector3C(0, 0, 0);
+	bullet.scale = ASP_FVector3C(0.2f, 0.2f, 0.2f);
 	pyramid1 = ASP_GeneratePyramidEntity();
 	pyramid1.position = ASP_FVector3C(2, 1, 0);
 	ASP_Mouseaim = 1;
@@ -123,48 +129,56 @@ int update(float deltatime)
 
 	if (ASPK_Up == 1 && ASPK_SHIFT == 1)
 	{
-		box1.rotation.x -= 5 * deltatime;
+		box1.rotation.x += 5 * deltatime;
 	}
 	if (ASPK_Down == 1 && ASPK_SHIFT == 1)
 	{
-		box1.rotation.x += 5 * deltatime;
+		box1.rotation.x -= 5 * deltatime;
 	}
 	if (ASPK_Right == 1 && ASPK_SHIFT == 1)
 	{
-		box1.rotation.y += 5 * deltatime;
+		box1.rotation.z += 5 * deltatime;
 	}
 	if (ASPK_Left == 1 && ASPK_SHIFT == 1)
 	{
-		box1.rotation.y -= 5 * deltatime;
+		box1.rotation.z -= 5 * deltatime;
 	}
 
 	if (ASPK_E == 1)
 	{
-		box1.scale.y -= 5 * deltatime;
+		box1.scale.y += 5 * deltatime;
 	}
 	if (ASPK_Q == 1)
 	{
-		box1.scale.y += 5 * deltatime;
+		box1.scale.y -= 5 * deltatime;
 	}
 
-	ASP_Color BLUE = ASP_ColorC(0, 0, 122, 255);
-	for (int i = 0; i < SCREEN_WIDTH; i++)
+	if (ASPMP_M1 == 1)
 	{
-		for (int j = 0; j < SCREEN_HEIGHT; j++)
-		{
-			//ASP_DrawPixel(renderer, BLUE, ASP_IVector2C(i, j));
-		}
+		//ASPMP_M1 = 0;
+		float speed = 5;
+		bullet.position = player.position;
+		bullet.rotation.x = player.rotation.x;
+		bullet.rotation.y = player.rotation.y;
+		bullet.rotation.z = player.rotation.z;
+		float dd = cosf(player.rotation.x);
+		bulletspeed.x = sinf(player.rotation.z) * dd * speed * deltatime;
+		bulletspeed.y = cosf(player.rotation.z) * dd * speed * deltatime;
+		bulletspeed.z = sinf(player.rotation.x) * speed * deltatime;
 	}
+
+	bullet.position.x += bulletspeed.x;
+	bullet.position.y += bulletspeed.y;
+	bullet.position.z += bulletspeed.z;
 
 	ASP_DrawEntity(box1, player);
 	ASP_DrawEntity(box2, player);
+	ASP_DrawEntity(bullet, player);
 	ASP_DrawEntity(pyramid1, player);
 
-	ASP_Color RED = ASP_ColorC(255, 0, 0, 255);
-	ASP_DrawPixel(renderer, RED, ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
-
-	/* MINIMAP */
-	ASP_Color color = ASP_ColorC(255, 0, 0, 255);
+	/* HUD */
+	ASP_Color color = ASP_ColorC(255, 255, 255, 255);
+	ASP_DrawPixel(renderer, color, ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
 	ASP_DrawRect(renderer, color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));
 	ASP_IVector2 ssp_bc = ASP_IVector2C(60, 60);
 	ASP_DrawPixel(renderer, color, ssp_bc);

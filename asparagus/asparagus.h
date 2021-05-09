@@ -31,6 +31,9 @@ int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_I
 /* Draws a rectangle to the render surface */
 int ASP_DrawRect(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 position, ASP_IVector2 scale);
 
+/* Fills the render surface with a color */
+int ASP_DrawFill(SDL_Renderer *renderer, ASP_Color color);
+
 /* Draws an ASP entity to the render surface */
 int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera);
 

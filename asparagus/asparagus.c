@@ -17,8 +17,7 @@ int ASPML_X, ASPML_Y, ASPML_DX, ASPML_DY = 0;
 SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *btexture;
-
-int *activetexture;
+uint32_t *pixelBuffer;
 
 float PI = 3.141592f;
 int ASP_FPS;
@@ -60,9 +59,7 @@ int ASP_init(int (*update)(float), int (*start)())
 	ASP_Running = 1;
 
 	SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
-	btexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	activetexture = 0;
+	btexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	//Update loop
 	while (ASP_Running)
@@ -75,6 +72,11 @@ int ASP_init(int (*update)(float), int (*start)())
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_SetRenderTarget(renderer, btexture);
 		SDL_RenderClear(renderer);
+
+		int32_t pitch = 0;
+		pixelBuffer = NULL;
+		SDL_LockTexture(btexture, NULL, (void **)&pixelBuffer, &pitch);
+		ASP_DrawFill(renderer, ASP_ColorC(60, 160, 255, 255));
 
 		//Update callback
 		(*update)(deltatime);
@@ -138,6 +140,11 @@ int ASP_EventHandler()
 		break;
 
 	case SDL_MOUSEBUTTONDOWN:
+		ASPMP_M1 = (ASPMP_M1 == 0) ? 1 : 0;
+		ASPM_M1 = 1;
+		break;
+	case SDL_MOUSEBUTTONUP:
+		ASPM_M1 = 0;
 		break;
 
 	case SDL_MOUSEMOTION:;
@@ -162,9 +169,10 @@ int ASP_EventHandler()
 
 int ASP_Render(SDL_Renderer *renderer, SDL_Window *window, SDL_Texture *texture)
 {
-	SDL_SetRenderTarget(renderer, NULL);
+	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
+
 	return 0;
 }
 
@@ -191,8 +199,10 @@ int ASP_sleep(int m_secs)
 
 int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p)
 {
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-	SDL_RenderDrawPoint(renderer, p.x, p.y);
+	if (p.y < 0 || p.y >= SCREEN_HEIGHT || p.x < 0 || p.x >= SCREEN_WIDTH)
+		return;
+	int i = index(p.x, p.y, SCREEN_WIDTH);
+	pixelBuffer[i] = (color.a << 24) | (color.r << 16) | (color.g << 8) | color.b;
 	return 0;
 }
 int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_IVector2 p2)
@@ -239,6 +249,17 @@ int ASP_DrawRect(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 position,
 	return 0;
 }
 
+int ASP_DrawFill(SDL_Renderer *renderer, ASP_Color color)
+{
+	for (int i = 0; i < SCREEN_WIDTH; i++)
+	{
+		for (int j = 0; j < SCREEN_HEIGHT; j++)
+		{
+			ASP_DrawPixel(renderer, color, ASP_IVector2C(i, j));
+		}
+	}
+}
+
 ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
 {
 	ASP_FVector3 tempvector = vector;
@@ -275,8 +296,7 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 	ASP_FVector3 v;
 	ASP_FVector3 w;
 
-	ASP_Color RED = ASP_ColorC(255, 0, 0, 255);
-	ASP_Color BLACK = ASP_ColorC(0, 0, 0, 255);
+	ASP_Color COLOR = ASP_ColorC(255, 255, 255, 255);
 	float p_fov = PI / 2;
 	float depth = PI;
 
@@ -319,12 +339,12 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			wp.z *= entity.scale.z;
 
 			/* ORIGIN RELATIVE ROTATION */
-			vp = ASP_RotateVector(entity.rotation.x, vp, 0);
-			wp = ASP_RotateVector(entity.rotation.x, wp, 0);
-			vp = ASP_RotateVector(entity.rotation.y, vp, 1);
-			wp = ASP_RotateVector(entity.rotation.y, wp, 1);
-			vp = ASP_RotateVector(entity.rotation.z, vp, 2);
-			wp = ASP_RotateVector(entity.rotation.z, wp, 2);
+			vp = ASP_RotateVector(-entity.rotation.x, vp, 0);
+			wp = ASP_RotateVector(-entity.rotation.x, wp, 0);
+			vp = ASP_RotateVector(-entity.rotation.z, vp, 2);
+			wp = ASP_RotateVector(-entity.rotation.z, wp, 2);
+			//vp = ASP_RotateVector(-entity.rotation.y, vp, 1);
+			//wp = ASP_RotateVector(-entity.rotation.y, wp, 1);
 
 			/* MOVING TO CAMERA RELATIVE POSITION */
 			vp.x = vp.x - camera.position.x + entity.position.x;
@@ -363,7 +383,7 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 				vssy = (vssy < 0) ? 0 : vssy;
 				wssy = (wssy < 0) ? 0 : wssy;
 
-				ASP_DrawLine(renderer, RED, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
+				ASP_DrawLine(renderer, COLOR, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
 			}
 		}
 	}
