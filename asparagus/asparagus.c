@@ -300,6 +300,8 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 	float p_fov = PI / 2;
 	float depth = PI;
 
+	//ASP_IVector2 tris[3];
+
 	//Loop over faces
 	for (int i = 0; i < entity.facecount; i++)
 	{
@@ -384,7 +386,35 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 				wssy = (wssy < 0) ? 0 : wssy;
 
 				ASP_DrawLine(renderer, COLOR, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
+				//tris[j] = ASP_IVector2C(vssx, vssy);
 			}
+
+			/*
+			ASP_IVector2 tl = ASP_IVector2C(tris[0].x, tris[0].y);
+			ASP_IVector2 br = ASP_IVector2C(tris[0].x, tris[0].y);
+			for (int t = 0; t < 3; t++)
+			{
+				ASP_IVector2 tri = tris[i];
+				if (tri.x < tl.x)
+				{
+					tl.x = tri.x;
+				}
+				if (tri.y < tl.y)
+				{
+					tl.y = tri.y;
+				}
+				if (tri.x > br.x)
+				{
+					br.x = tri.x;
+				}
+				if (tri.y > br.y)
+				{
+					br.y = tri.y;
+				}
+			}
+
+			ASP_DrawRect(renderer, ASP_ColorC(0, 0, 0, 255), tl, ASP_IVector2C(br.x - tl.x, br.y - tl.x));
+			*/
 		}
 	}
 
