@@ -293,19 +293,8 @@ ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
 	return vector;
 }
 
-int ASP_InTriangle(ASP_IVector2 p, ASP_IVector2 a, ASP_IVector2 b, ASP_IVector2 c)
+int ASP_InTriangle(ASP_IVector2 a, ASP_IVector2 b, ASP_IVector2 c)
 {
-	int as_x = p.x - a.x;
-	int as_y = p.y - a.y;
-
-	int s_ab = (b.x - a.x) * as_y - (b.y - a.y) * as_x > 0;
-
-	if ((c.x - a.x) * as_y - (c.y - a.y) * as_x > 0 == s_ab)
-		return 0;
-
-	if ((c.x - b.x) * (p.y - b.y) - (c.y - b.y) * (p.x - b.x) > 0 != s_ab)
-		return 0;
-
 	return 1;
 }
 
@@ -315,9 +304,10 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 	ASP_FVector3 w;
 
 	ASP_Color COLOR = ASP_ColorC(255, 255, 255, 255);
-	ASP_Color fCOLOR = ASP_ColorC(0, 255, 255, 255);
 	float p_fov = PI / 2;
 	float depth = PI;
+
+	//ASP_IVector2 tris[3];
 
 	//Loop over faces
 	for (int i = 0; i < entity.facecount; i++)
@@ -326,8 +316,6 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 		face[0] = entity.faces[i][0];
 		face[1] = entity.faces[i][1];
 		face[2] = entity.faces[i][2];
-
-		ASP_IVector2 tris[3];
 
 		//Face vertex loop
 		for (int j = 0; j < 3; j++)
@@ -399,45 +387,36 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 				int wssx = mapf(waz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
 				int vssy = mapf(vay, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
 				int wssy = mapf(way, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
-				//ASP_DrawLine(renderer, COLOR, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
-				tris[j] = ASP_IVector2C(vssx, vssy);
+				ASP_DrawLine(renderer, COLOR, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
+				//tris[j] = ASP_IVector2C(vssx, vssy);
 			}
-			else
-			{
-				tris[j] = ASP_IVector2C(0, 0);
-			}
-		}
-		int minx = tris[0].x;
-		int miny = tris[0].y;
-		int maxx = minx;
-		int maxy = miny;
-		for (int c = 0; c < 3; c++)
-		{
-			int vertexx = tris[c].x;
-			int vertexy = tris[c].y;
-			vertexx = (vertexx > SCREEN_WIDTH) ? SCREEN_WIDTH : vertexx;
-			vertexy = (vertexy > SCREEN_HEIGHT) ? SCREEN_HEIGHT : vertexy;
-			vertexx = (vertexx < 0) ? 0 : vertexx;
-			vertexy = (vertexy < 0) ? 0 : vertexy;
-			minx = (vertexx < minx) ? vertexx : minx;
-			miny = (vertexy < miny) ? vertexy : miny;
-			maxx = (vertexx > maxx) ? vertexx : maxx;
-			maxy = (vertexy > maxy) ? vertexy : maxy;
-		}
 
-		//fCOLOR.r = sqrtf(maxx - minx) * 256;
-		//fCOLOR.g = sqrtf(maxy - miny) * 256;
-		//fCOLOR.b = sqrtf(maxx - miny) * 256;
-
-		for (int x = 0; x < maxx - minx; x++)
-		{
-			for (int y = 0; y < maxy - miny; y++)
+			/*
+			ASP_IVector2 tl = ASP_IVector2C(tris[0].x, tris[0].y);
+			ASP_IVector2 br = ASP_IVector2C(tris[0].x, tris[0].y);
+			for (int t = 0; t < 3; t++)
 			{
-				if (ASP_InTriangle(ASP_IVector2C(minx + x, miny + y), tris[0], tris[1], tris[2]) == 1)
+				ASP_IVector2 tri = tris[i];
+				if (tri.x < tl.x)
 				{
-					ASP_DrawPixel(renderer, fCOLOR, ASP_IVector2C(minx + x, miny + y));
+					tl.x = tri.x;
+				}
+				if (tri.y < tl.y)
+				{
+					tl.y = tri.y;
+				}
+				if (tri.x > br.x)
+				{
+					br.x = tri.x;
+				}
+				if (tri.y > br.y)
+				{
+					br.y = tri.y;
 				}
 			}
+
+			ASP_DrawRect(renderer, ASP_ColorC(0, 0, 0, 255), tl, ASP_IVector2C(br.x - tl.x, br.y - tl.x));
+			*/
 		}
 	}
 
