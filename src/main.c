@@ -18,6 +18,8 @@ ASP_Entity pyramid1;
 
 ASP_FVector3 bulletspeed;
 
+ASP_Sprite goblin;
+
 #define IMG_PATH "../data/goblin.png"
 
 int main(int argc, char *argv[])
@@ -29,10 +31,13 @@ int main(int argc, char *argv[])
 
 int start()
 {
+	//Player
 	player = ASP_EntityC();
 	player.position.x = 0;
 	player.position.y = 0;
 	player.rotation.z = PI;
+
+	//World objects
 	box1 = ASP_GenerateBoxEntity();
 	box2 = ASP_GenerateBoxEntity();
 	box2.position = ASP_FVector3C(1, 1, 0);
@@ -41,7 +46,12 @@ int start()
 	bullet.scale = ASP_FVector3C(0.2f, 0.2f, 0.2f);
 	pyramid1 = ASP_GeneratePyramidEntity();
 	pyramid1.position = ASP_FVector3C(2, 1, 0);
+
+	//Settings
 	ASP_Mouseaim = 1;
+
+	//Sprites
+	goblin = ASP_LoadSprite(IMG_PATH);
 
 	return 0;
 }
@@ -188,6 +198,14 @@ int update(float deltatime)
 	int ssp_ay = cosf(player.rotation.z) * 15;
 	ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
 	ASP_DrawLine(renderer, color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
+
+	for (int x = 0; x < goblin.w; x++)
+	{
+		for (int y = 0; y < goblin.h; y++)
+		{
+			ASP_DrawPixel(renderer, goblin.pixels[y * 271 + x], ASP_IVector2C(x, y));
+		}
+	}
 
 	return 0;
 }

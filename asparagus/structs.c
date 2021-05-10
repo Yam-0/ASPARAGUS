@@ -107,6 +107,24 @@ ASP_Entity ASP_EntityC()
 	return entity;
 }
 
+/* Standard Asparagus Sprite */
+typedef struct
+{
+	int w;
+	int h;
+	ASP_Color *pixels;
+} ASP_Sprite;
+
+/* CONSTRUCTOR */
+ASP_Sprite ASP_SpriteC(int w, int h, ASP_Color *pixels)
+{
+	ASP_Sprite sprite;
+	sprite.w = w;
+	sprite.h = h;
+	sprite.pixels = pixels;
+	return sprite;
+}
+
 /* UNIT VECTORS */
 const ASP_IVector2 ASP_UNIT_i_I2 = {1, 0};
 const ASP_IVector3 ASP_UNIT_i_I3 = {1, 0, 0};

@@ -199,6 +199,51 @@ int ASP_sleep(int m_secs)
 	return 0;
 }
 
+ASP_Sprite ASP_LoadSprite(char *name)
+{
+	ASP_Sprite sprite = ASP_SpriteC(0, 0, 0);
+	int x, y, n;
+	unsigned char *image = stbi_load(name, &x, &y, &n, 0);
+	if (image == NULL)
+	{
+		printf("Failed to load image %s\n", name);
+		return sprite;
+	}
+
+	printf("Image loaded! Image size: (%dpx, %dpx) channels: %d\n", x, y, n);
+
+	int pixelcount = x * y;
+	ASP_Color pixels[pixelcount];
+	int r, g, b, a;
+	printf("%s", image);
+
+	for (int imgx = 0; imgx < x; imgx++)
+	{
+		for (int imgy = 0; imgy < y; imgy++)
+		{
+			r = image[0];
+			g = image[1];
+			b = image[2];
+			a = image[3];
+			pixels[imgy * y + x] = ASP_ColorC(r, g, b, a);
+		}
+	}
+
+	sprite.w = x;
+	sprite.h = y;
+	sprite.pixels = (ASP_Color *)pixels;
+	stbi_image_free(image);
+	return sprite;
+}
+
+ASP_Color ASP_SampleSprite(ASP_Sprite sprite, float x, float y)
+{
+	int nx = mapf(x, 0, 1, 0, sprite.w);
+	int ny = mapf(x, 0, 1, 0, sprite.h);
+
+	return sprite.pixels[ny * sprite.w + nx];
+}
+
 int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p)
 {
 	if (p.y < 0 || p.y >= SCREEN_HEIGHT || p.x < 0 || p.x >= SCREEN_WIDTH)
