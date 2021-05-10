@@ -96,6 +96,7 @@ typedef struct
 	int vertexcount;
 	int faces[128][3];
 	int facecount;
+	ASP_Color faceColor[128];
 	int type;
 } ASP_Entity;
 

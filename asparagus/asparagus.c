@@ -399,7 +399,7 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 				int wssx = mapf(waz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
 				int vssy = mapf(vay, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
 				int wssy = mapf(way, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
-				//ASP_DrawLine(renderer, COLOR, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
+				ASP_DrawLine(renderer, COLOR, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
 				tris[j] = ASP_IVector2C(vssx, vssy);
 			}
 			else
@@ -435,7 +435,7 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			{
 				if (ASP_InTriangle(ASP_IVector2C(minx + x, miny + y), tris[0], tris[1], tris[2]) == 1)
 				{
-					ASP_DrawPixel(renderer, fCOLOR, ASP_IVector2C(minx + x, miny + y));
+					ASP_DrawPixel(renderer, entity.faceColor[i], ASP_IVector2C(minx + x, miny + y));
 				}
 			}
 		}
@@ -489,6 +489,8 @@ ASP_Entity ASP_GenerateBoxEntity()
 		box.faces[i][0] = faces[i][0];
 		box.faces[i][1] = faces[i][1];
 		box.faces[i][2] = faces[i][2];
+
+		box.faceColor[i] = ASP_ColorC(rand() % 255, 255, 255, 255);
 	}
 
 	box.facecount = 12;
@@ -533,6 +535,8 @@ ASP_Entity ASP_GeneratePyramidEntity()
 		pyramid.faces[i][0] = faces[i][0];
 		pyramid.faces[i][1] = faces[i][1];
 		pyramid.faces[i][2] = faces[i][2];
+
+		pyramid.faceColor[i] = ASP_ColorC(rand() % 255, 255, 255, 255);
 	}
 
 	pyramid.facecount = 6;
