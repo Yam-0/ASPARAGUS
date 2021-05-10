@@ -213,7 +213,7 @@ ASP_Sprite ASP_LoadSprite(char *name)
 	printf("Image loaded! Image size: (%dpx, %dpx) channels: %d\n", x, y, n);
 
 	int pixelcount = x * y;
-	ASP_Color pixels[pixelcount];
+	ASP_Color *pixels = malloc(pixelcount * sizeof(ASP_Color));
 	int r, g, b, a;
 	printf("%s", image);
 
@@ -225,7 +225,26 @@ ASP_Sprite ASP_LoadSprite(char *name)
 			g = image[1];
 			b = image[2];
 			a = image[3];
-			pixels[imgy * y + x] = ASP_ColorC(r, g, b, a);
+
+			unsigned char *pixelOffset = image + (imgx + y * imgy) * n;
+			unsigned char r = pixelOffset[0];
+			unsigned char g = pixelOffset[1];
+			unsigned char b = pixelOffset[2];
+			unsigned char a = n >= 4 ? pixelOffset[3] : 0xff;
+
+			a = 255;
+			pixels[imgy * y + imgx] = ASP_ColorC(r, g, b, a);
+
+			/*
+			image[0] is the first pixel's R value.
+			image[1] is the first pixel's G value.
+			image[2] is the first pixel's B value.
+			image[3] is the second pixel's R value.
+			image[4] is the second pixel's G value.
+			image[5] is the second pixel's B value.
+			image[6] is the third pixel's R value.
+			image[7] is the third pixel's G value.
+			*/
 		}
 	}
 
@@ -238,8 +257,10 @@ ASP_Sprite ASP_LoadSprite(char *name)
 
 ASP_Color ASP_SampleSprite(ASP_Sprite sprite, float x, float y)
 {
+	x = (x > 1) ? 1 : x;
+	y = (y > 1) ? 1 : y;
 	int nx = mapf(x, 0, 1, 0, sprite.w);
-	int ny = mapf(x, 0, 1, 0, sprite.h);
+	int ny = mapf(y, 0, 1, 0, sprite.h);
 
 	return sprite.pixels[ny * sprite.w + nx];
 }

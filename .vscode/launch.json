@@ -1,26 +1,26 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "(gdb)",
-            "type": "cppdbg",
-            "request": "launch",
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "(gdb)",
+			"type": "cppdbg",
+			"request": "launch",
 			"program": "${workspaceFolder}\\build\\game.exe",
 			"args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "MIMode": "gdb",
-            "miDebuggerPath": "${workspaceFolder}/mingw-w64/mingw64/bin/gdb.exe",
-            "setupCommands": [
-                {
-                    "description": "Enably pretty printing",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "asparagus"
-        }
-    ]
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}/scripts",
+			"environment": [],
+			"externalConsole": true,
+			"MIMode": "gdb",
+			"miDebuggerPath": "${workspaceFolder}/mingw-w64/mingw64/bin/gdb.exe",
+			"setupCommands": [
+				{
+					"description": "Enably pretty printing",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			],
+			"preLaunchTask": "asparagus"
+		}
+	]
 }

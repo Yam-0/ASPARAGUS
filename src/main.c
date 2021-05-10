@@ -19,8 +19,10 @@ ASP_Entity pyramid1;
 ASP_FVector3 bulletspeed;
 
 ASP_Sprite goblin;
+ASP_Sprite dog;
 
-#define IMG_PATH "../data/goblin.png"
+#define IMG_PATH1 "../data/goblin.png"
+#define IMG_PATH2 "../data/dog.png"
 
 int main(int argc, char *argv[])
 {
@@ -51,7 +53,8 @@ int start()
 	ASP_Mouseaim = 1;
 
 	//Sprites
-	goblin = ASP_LoadSprite(IMG_PATH);
+	goblin = ASP_LoadSprite(IMG_PATH1);
+	dog = ASP_LoadSprite(IMG_PATH2);
 
 	return 0;
 }
@@ -199,11 +202,15 @@ int update(float deltatime)
 	ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
 	ASP_DrawLine(renderer, color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
 
-	for (int x = 0; x < goblin.w; x++)
+	int size = box1.scale.y * 10;
+	for (int x = 0; x < size; x++)
 	{
-		for (int y = 0; y < goblin.h; y++)
+		for (int y = 0; y < size; y++)
 		{
-			ASP_DrawPixel(renderer, goblin.pixels[y * 271 + x], ASP_IVector2C(x, y));
+			float nx = mapf(x, 0, size, 0, 1);
+			float ny = mapf(y, 0, size, 0, 1);
+			ASP_Color color = ASP_SampleSprite(goblin, nx, ny);
+			ASP_DrawPixel(renderer, color, ASP_IVector2C(x, y));
 		}
 	}
 
