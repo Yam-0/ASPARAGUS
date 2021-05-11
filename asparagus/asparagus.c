@@ -257,10 +257,10 @@ ASP_Sprite ASP_LoadSprite(char *name)
 
 ASP_Color ASP_SampleSprite(ASP_Sprite sprite, float x, float y)
 {
-	x = (x > 1) ? 1 : x;
-	y = (y > 1) ? 1 : y;
-	int nx = mapf(x, 0, 1, 0, sprite.w);
-	int ny = mapf(y, 0, 1, 0, sprite.h);
+	float nxo = overflowf(x, 0.0f, 1.0f);
+	float nyo = overflowf(y, 0.0f, 1.0f);
+	int nx = mapf(nxo, 0.0f, 1.0f, 0.0f, sprite.w);
+	int ny = mapf(nyo, 0.0f, 1.0f, 0.0f, sprite.h);
 
 	return sprite.pixels[ny * sprite.w + nx];
 }

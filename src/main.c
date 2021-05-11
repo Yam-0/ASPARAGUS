@@ -203,7 +203,7 @@ int update(float deltatime)
 	ASP_DrawLine(renderer, color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
 
 	/* Sprites */
-	ASP_DrawSprite(renderer, goblin, ASP_IVector2C(0, 0), ASP_IVector2C(box1.scale.y, box1.scale.y));
+	ASP_DrawSprite(renderer, goblin, ASP_IVector2C(0, 0), ASP_IVector2C(box1.scale.y * 10, box1.scale.y * 10));
 
 	return 0;
 }
