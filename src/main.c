@@ -202,17 +202,8 @@ int update(float deltatime)
 	ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
 	ASP_DrawLine(renderer, color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
 
-	int size = box1.scale.y * 10;
-	for (int x = 0; x < size; x++)
-	{
-		for (int y = 0; y < size; y++)
-		{
-			float nx = mapf(x, 0, size, 0, 1);
-			float ny = mapf(y, 0, size, 0, 1);
-			ASP_Color color = ASP_SampleSprite(goblin, nx, ny);
-			ASP_DrawPixel(renderer, color, ASP_IVector2C(x, y));
-		}
-	}
+	/* Sprites */
+	ASP_DrawSprite(renderer, goblin, ASP_IVector2C(0, 0), ASP_IVector2C(box1.scale.y, box1.scale.y));
 
 	return 0;
 }

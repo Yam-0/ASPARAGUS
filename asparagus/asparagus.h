@@ -31,6 +31,9 @@ ASP_Sprite ASP_LoadSprite(char name[128]);
 /* Sample ASP_Sprite at normalized (x, y) position */
 ASP_Color ASP_SampleSprite(ASP_Sprite sprite, float x, float y);
 
+/* Draw ASP_Sprite to the render surface */
+int ASP_DrawSprite(SDL_Renderer *renderer, ASP_Sprite sprite, ASP_IVector2 position, ASP_IVector2 scale);
+
 /* Draws a pixel to the render surface */
 int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p);
 

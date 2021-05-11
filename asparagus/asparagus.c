@@ -265,6 +265,23 @@ ASP_Color ASP_SampleSprite(ASP_Sprite sprite, float x, float y)
 	return sprite.pixels[ny * sprite.w + nx];
 }
 
+int ASP_DrawSprite(SDL_Renderer *renderer, ASP_Sprite sprite, ASP_IVector2 position, ASP_IVector2 scale)
+{
+	ASP_Color color;
+	float nx, ny;
+
+	for (int x = 0; x < scale.x; x++)
+	{
+		for (int y = 0; y < scale.y; y++)
+		{
+			nx = mapf(x, 0, scale.x, 0, 1);
+			ny = mapf(y, 0, scale.y, 0, 1);
+			color = ASP_SampleSprite(sprite, nx, ny);
+			ASP_DrawPixel(renderer, color, ASP_IVector2C(x, y));
+		}
+	}
+}
+
 int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p)
 {
 	if (p.y < 0 || p.y >= SCREEN_HEIGHT || p.x < 0 || p.x >= SCREEN_WIDTH)
