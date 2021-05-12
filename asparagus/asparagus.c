@@ -260,7 +260,7 @@ ASP_Color ASP_SampleSprite(ASP_Sprite sprite, float x, float y)
 	float nxo = overflowf(x, 0.0f, 1.0f);
 	float nyo = overflowf(y, 0.0f, 1.0f);
 	int nx = mapf(nxo, 0.0f, 1.0f, 0.0f, sprite.w);
-	int ny = mapf(nyo, 0.0f, 1.0f, 0.0f, sprite.h);
+	int ny = mapf(nyo, 0.0f, 1.0f, 1.0f, sprite.h) - 1;
 
 	return sprite.pixels[ny * sprite.w + nx];
 }
@@ -274,8 +274,8 @@ int ASP_DrawSprite(SDL_Renderer *renderer, ASP_Sprite sprite, ASP_IVector2 posit
 	{
 		for (int y = 0; y < scale.y; y++)
 		{
-			nx = mapf(x, 0, scale.x, 0, 1);
-			ny = mapf(y, 0, scale.y, 0, 1);
+			nx = mapf(x, 0, scale.x, 0, 4);
+			ny = mapf(y, 0, scale.y, 0, 4);
 			color = ASP_SampleSprite(sprite, nx, ny);
 			ASP_DrawPixel(renderer, color, ASP_IVector2C(x, y));
 		}
