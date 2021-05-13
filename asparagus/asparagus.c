@@ -370,9 +370,7 @@ ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
 		break;
 	}
 
-	vector = tempvector;
-
-	return vector;
+	return tempvector;
 }
 
 int ASP_InTriangle(ASP_IVector2 p, ASP_IVector2 a, ASP_IVector2 b, ASP_IVector2 c)
@@ -393,9 +391,7 @@ int ASP_InTriangle(ASP_IVector2 p, ASP_IVector2 a, ASP_IVector2 b, ASP_IVector2 
 
 int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 {
-	ASP_FVector3 v;
-	ASP_FVector3 w;
-
+	ASP_FVector3 p;
 	ASP_Color COLOR = ASP_ColorC(255, 255, 255, 255);
 	ASP_Color fCOLOR = ASP_ColorC(0, 255, 255, 255);
 	float p_fov = PI / 2;
@@ -414,144 +410,70 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 		//Face vertex loop
 		for (int j = 0; j < 3; j++)
 		{
-			if (j == 0)
-			{
-				v = entity.vertices[face[0]];
-				w = entity.vertices[face[1]];
-			}
-			if (j == 1)
-			{
-				v = entity.vertices[face[1]];
-				w = entity.vertices[face[2]];
-			}
-			if (j == 2)
-			{
-				v = entity.vertices[face[2]];
-				w = entity.vertices[face[0]];
-			}
-
-			ASP_FVector3 vp = v;
-			ASP_FVector3 wp = w;
+			p = entity.vertices[face[j]];
 
 			/* ORIGIN RELATIVE SCALING */
-			vp.x *= entity.scale.x;
-			vp.y *= entity.scale.y;
-			vp.z *= entity.scale.z;
-			wp.x *= entity.scale.x;
-			wp.y *= entity.scale.y;
-			wp.z *= entity.scale.z;
+			p.x *= entity.scale.x;
+			p.y *= entity.scale.y;
+			p.z *= entity.scale.z;
 
 			/* ORIGIN RELATIVE ROTATION */
-			vp = ASP_RotateVector(-entity.rotation.x, vp, 0);
-			wp = ASP_RotateVector(-entity.rotation.x, wp, 0);
-			vp = ASP_RotateVector(-entity.rotation.z, vp, 2);
-			wp = ASP_RotateVector(-entity.rotation.z, wp, 2);
+			p = ASP_RotateVector(-entity.rotation.x, p, 0);
+			p = ASP_RotateVector(-entity.rotation.z, p, 2);
 			//vp = ASP_RotateVector(-entity.rotation.y, vp, 1);
-			//wp = ASP_RotateVector(-entity.rotation.y, wp, 1);
 
 			/* MOVING TO CAMERA RELATIVE POSITION */
-			vp.x = vp.x - camera.position.x + entity.position.x;
-			vp.y = vp.y - camera.position.y + entity.position.y;
-			vp.z = vp.z - camera.position.z + entity.position.z;
-			wp.x = wp.x - camera.position.x + entity.position.x;
-			wp.y = wp.y - camera.position.y + entity.position.y;
-			wp.z = wp.z - camera.position.z + entity.position.z;
+			p.x = p.x - camera.position.x + entity.position.x;
+			p.y = p.y - camera.position.y + entity.position.y;
+			p.z = p.z - camera.position.z + entity.position.z;
 
 			/* AXIS ROTATION AROUND CAMERA */
-			vp = ASP_RotateVector(camera.rotation.z, vp, 2);
-			wp = ASP_RotateVector(camera.rotation.z, wp, 2);
-			vp = ASP_RotateVector(camera.rotation.x, vp, 0);
-			wp = ASP_RotateVector(camera.rotation.x, wp, 0);
+			p = ASP_RotateVector(camera.rotation.z, p, 2);
+			p = ASP_RotateVector(camera.rotation.x, p, 0);
 
-			if (vp.y >= 0 && wp.y >= 0)
+			if (p.y > 0)
 			{
-				float vdist = sqrtf(vp.y * vp.y + vp.z * vp.z + vp.x * vp.x) + 0.0001f;
-				float wdist = sqrtf(wp.y * wp.y + wp.z * wp.z + wp.x * wp.x) + 0.0001f;
-				vp.x *= (depth / vdist);
-				wp.x *= (depth / wdist);
-				vp.y *= (depth / vdist);
-				wp.y *= (depth / wdist);
-				vp.z *= (depth / vdist);
-				wp.z *= (depth / wdist);
-				float vaz = atanf((float)(vp.x) / (float)(vp.y));
-				float waz = atanf((float)(wp.x) / (float)(wp.y));
-				float vay = atanf((float)(vp.z) / (float)(vp.y));
-				float way = atanf((float)(wp.z) / (float)(wp.y));
-				int vssx = mapf(vaz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
-				int wssx = mapf(waz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
-				int vssy = mapf(vay, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
-				int wssy = mapf(way, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
-
-				COLOR = ASP_ColorC(255, 255, 255, 255);
-				if (vssx < 0 ||
-					wssx < 0 ||
-					vssx > SCREEN_WIDTH ||
-					wssx > SCREEN_WIDTH ||
-					vssy < 0 ||
-					wssy < 0 ||
-					vssy > SCREEN_HEIGHT ||
-					wssy > SCREEN_HEIGHT)
-				{
-					COLOR = ASP_ColorC(255, 0, 0, 255);
-				}
-				/*
-				int dx, dy;
-				float ra = atan2f(wssy - vssy, wssx - vssx);
-
-				if (vssx < 0)
-				{
-					vssy -= tanf(ra) * vssx;
-					vssx = 0;
-					COLOR = ASP_ColorC(255, 0, 0, 255);
-				}
-				//vssx = (vssx < 0) ? 0 : vssx;
-				wssx = (wssx < 0) ? 0 : wssx;
-				vssx = (vssx > SCREEN_WIDTH) ? SCREEN_WIDTH : vssx;
-				wssx = (wssx > SCREEN_WIDTH) ? SCREEN_WIDTH : wssx;
-				vssy = (vssy < 0) ? 0 : vssy;
-				wssy = (wssy < 0) ? 0 : wssy;
-				vssy = (vssy > SCREEN_HEIGHT) ? SCREEN_HEIGHT : vssy;
-				wssy = (wssy > SCREEN_HEIGHT) ? SCREEN_HEIGHT : wssy;
-				*/
-
-				ASP_DrawLine(renderer, COLOR, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
-				tris[j] = ASP_IVector2C(vssx, vssy);
+				float dist = sqrtf(p.y * p.y + p.z * p.z + p.x * p.x);
+				dist = dist == 0 ? 0.0001f : dist;
+				p.x *= (depth / dist);
+				p.y *= (depth / dist);
+				p.z *= (depth / dist);
+				float az = atanf((float)(p.x) / (float)(p.y));
+				float ay = atanf((float)(p.z) / (float)(p.y));
+				int ssx = mapf(az, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
+				int ssy = mapf(ay, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
+				tris[j] = ASP_IVector2C(ssx, ssy);
 			}
 			else
 			{
 				tris[j] = ASP_IVector2C(0, 0);
 			}
 		}
-		int minx = tris[0].x;
-		int miny = tris[0].y;
-		int maxx = minx;
-		int maxy = miny;
+
+		ASP_IVector2 min, max = ASP_IVector2C(tris[0].x, tris[0].y);
+		int vx, vy;
 		for (int c = 0; c < 3; c++)
 		{
-			int vertexx = tris[c].x;
-			int vertexy = tris[c].y;
-			vertexx = (vertexx > SCREEN_WIDTH) ? SCREEN_WIDTH : vertexx;
-			vertexy = (vertexy > SCREEN_HEIGHT) ? SCREEN_HEIGHT : vertexy;
-			vertexx = (vertexx < 0) ? 0 : vertexx;
-			vertexy = (vertexy < 0) ? 0 : vertexy;
-			minx = (vertexx < minx) ? vertexx : minx;
-			miny = (vertexy < miny) ? vertexy : miny;
-			maxx = (vertexx > maxx) ? vertexx : maxx;
-			maxy = (vertexy > maxy) ? vertexy : maxy;
+			int vx = tris[c].x;
+			int vy = tris[c].y;
+			vx = (vx > SCREEN_WIDTH) ? SCREEN_WIDTH : vx;
+			vy = (vy > SCREEN_HEIGHT) ? SCREEN_HEIGHT : vy;
+			vx = (vx < 0) ? 0 : vx;
+			vy = (vy < 0) ? 0 : vy;
+			min.x = (vx < min.x) ? vx : min.x;
+			min.y = (vy < min.y) ? vy : min.y;
+			max.x = (vx > max.x) ? vx : max.x;
+			max.y = (vy > max.y) ? vy : max.y;
 		}
 
-		//fCOLOR.r = sqrtf(maxx - minx) * 256;
-		//fCOLOR.g = sqrtf(maxy - miny) * 256;
-		//fCOLOR.b = sqrtf(maxx - miny) * 256;
-
-		for (int x = 0; x < maxx - minx; x++)
+		for (int x = 0; x < max.x - min.x; x++)
 		{
-			for (int y = 0; y < maxy - miny; y++)
+			for (int y = 0; y < max.y - min.y; y++)
 			{
-				//if (ASP_InTriangle(ASP_IVector2C(minx + x, miny + y), tris[0], tris[1], tris[2]) == 1)
-				//{
-				//	ASP_DrawPixel(renderer, entity.faceColor[i], ASP_IVector2C(minx + x, miny + y));
-				//}
+				if (ASP_InTriangle(ASP_IVector2C(min.x + x, min.y + y), tris[0], tris[1], tris[2]) == 1)
+				{
+					ASP_DrawPixel(renderer, entity.faceColor[i], ASP_IVector2C(min.x + x, min.y + y));
+				}
 			}
 		}
 	}
