@@ -356,9 +356,9 @@ ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
 		tempvector.y = sinf(a) * vector.z + cosf(a) * vector.y;
 		break;
 	case 1: //y
-		tempvector.x = cosf(a) * vector.z - sinf(a) * vector.x;
-		tempvector.y = vector.y;
-		tempvector.z = sinf(a) * vector.z + cosf(a) * vector.x;
+		//tempvector.x = cosf(a) * vector.z - sinf(a) * vector.x;
+		//tempvector.y = vector.y;
+		//tempvector.z = sinf(a) * vector.z + cosf(a) * vector.x;
 		break;
 	case 2: //z
 		tempvector.x = cosf(a) * vector.x - sinf(a) * vector.y;
@@ -389,13 +389,27 @@ int ASP_InTriangle(ASP_IVector2 p, ASP_IVector2 a, ASP_IVector2 b, ASP_IVector2 
 	return 1;
 }
 
+ASP_IVector2 ASP_Project(ASP_FVector3 p, ASP_Entity camera, float fov, float depth)
+{
+	float dist = sqrtf(p.y * p.y + p.z * p.z + p.x * p.x);
+	dist = dist == 0 ? 0.0001f : dist;
+	float r = (depth / dist);
+	p.x *= r;
+	p.y *= r;
+	p.z *= r;
+	float ax = atan2f(p.z, p.y);
+	float az = atan2f(p.x, p.y);
+	int ssx = mapf(az, fov / 2, -fov / 2, 0, SCREEN_WIDTH);
+	int ssy = mapf(ax, fov / 2, -fov / 2, 0, SCREEN_HEIGHT);
+	return ASP_IVector2C(ssx, ssy);
+}
+
 int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 {
 	ASP_FVector3 p;
 	ASP_Color COLOR = ASP_ColorC(255, 255, 255, 255);
-	ASP_Color fCOLOR = ASP_ColorC(0, 255, 255, 255);
 	float p_fov = PI / 2;
-	float depth = PI;
+	float depth = PI * 168;
 
 	//Loop over faces
 	for (int i = 0; i < entity.facecount; i++)
@@ -420,7 +434,7 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			/* ORIGIN RELATIVE ROTATION */
 			p = ASP_RotateVector(-entity.rotation.x, p, 0);
 			p = ASP_RotateVector(-entity.rotation.z, p, 2);
-			//vp = ASP_RotateVector(-entity.rotation.y, vp, 1);
+			p = ASP_RotateVector(-entity.rotation.y, p, 1);
 
 			/* MOVING TO CAMERA RELATIVE POSITION */
 			p.x = p.x - camera.position.x + entity.position.x;
@@ -430,25 +444,21 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			/* AXIS ROTATION AROUND CAMERA */
 			p = ASP_RotateVector(camera.rotation.z, p, 2);
 			p = ASP_RotateVector(camera.rotation.x, p, 0);
+			p = ASP_RotateVector(camera.rotation.x, p, 1);
 
 			if (p.y > 0)
 			{
-				float dist = sqrtf(p.y * p.y + p.z * p.z + p.x * p.x);
-				dist = dist == 0 ? 0.0001f : dist;
-				p.x *= (depth / dist);
-				p.y *= (depth / dist);
-				p.z *= (depth / dist);
-				float az = atanf((float)(p.x) / (float)(p.y));
-				float ay = atanf((float)(p.z) / (float)(p.y));
-				int ssx = mapf(az, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
-				int ssy = mapf(ay, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
-				tris[j] = ASP_IVector2C(ssx, ssy);
+				tris[j] = ASP_Project(p, camera, p_fov, depth);
 			}
 			else
 			{
 				tris[j] = ASP_IVector2C(0, 0);
 			}
 		}
+
+		ASP_DrawLine(renderer, COLOR, tris[0], tris[1]);
+		ASP_DrawLine(renderer, COLOR, tris[1], tris[2]);
+		ASP_DrawLine(renderer, COLOR, tris[2], tris[0]);
 
 		ASP_IVector2 min, max = ASP_IVector2C(tris[0].x, tris[0].y);
 		int vx, vy;
@@ -470,10 +480,10 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 		{
 			for (int y = 0; y < max.y - min.y; y++)
 			{
-				if (ASP_InTriangle(ASP_IVector2C(min.x + x, min.y + y), tris[0], tris[1], tris[2]) == 1)
-				{
-					ASP_DrawPixel(renderer, entity.faceColor[i], ASP_IVector2C(min.x + x, min.y + y));
-				}
+				//if (ASP_InTriangle(ASP_IVector2C(min.x + x, min.y + y), tris[0], tris[1], tris[2]) == 1)
+				//{
+				//	ASP_DrawPixel(renderer, entity.faceColor[i], ASP_IVector2C(min.x + x, min.y + y));
+				//}
 			}
 		}
 	}
