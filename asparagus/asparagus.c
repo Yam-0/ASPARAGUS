@@ -71,13 +71,12 @@ int ASP_init(int (*update)(float), int (*start)())
 
 		ASP_EventHandler();
 
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		SDL_SetRenderTarget(renderer, btexture);
-		SDL_RenderClear(renderer);
-
 		int32_t pitch = 0;
 		pixelBuffer = NULL;
 		SDL_LockTexture(btexture, NULL, (void **)&pixelBuffer, &pitch);
+		//SDL_SetRenderTarget(renderer, btexture);
+		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		//SDL_RenderClear(renderer);
 		ASP_DrawFill(renderer, ASP_ColorC(60, 160, 255, 255));
 
 		//Update callback
@@ -285,7 +284,7 @@ int ASP_DrawSprite(SDL_Renderer *renderer, ASP_Sprite sprite, ASP_IVector2 posit
 int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p)
 {
 	if (p.y < 0 || p.y >= SCREEN_HEIGHT || p.x < 0 || p.x >= SCREEN_WIDTH)
-		return;
+		return 1;
 	int i = index(p.x, p.y, SCREEN_WIDTH);
 	pixelBuffer[i] = (color.a << 24) | (color.r << 16) | (color.g << 8) | color.b;
 	return 0;
@@ -482,6 +481,39 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 				int wssx = mapf(waz, p_fov / 2, -p_fov / 2, 0, SCREEN_WIDTH);
 				int vssy = mapf(vay, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
 				int wssy = mapf(way, p_fov / 2, -p_fov / 2, 0, SCREEN_HEIGHT);
+
+				COLOR = ASP_ColorC(255, 255, 255, 255);
+				if (vssx < 0 ||
+					wssx < 0 ||
+					vssx > SCREEN_WIDTH ||
+					wssx > SCREEN_WIDTH ||
+					vssy < 0 ||
+					wssy < 0 ||
+					vssy > SCREEN_HEIGHT ||
+					wssy > SCREEN_HEIGHT)
+				{
+					COLOR = ASP_ColorC(255, 0, 0, 255);
+				}
+				/*
+				int dx, dy;
+				float ra = atan2f(wssy - vssy, wssx - vssx);
+
+				if (vssx < 0)
+				{
+					vssy -= tanf(ra) * vssx;
+					vssx = 0;
+					COLOR = ASP_ColorC(255, 0, 0, 255);
+				}
+				//vssx = (vssx < 0) ? 0 : vssx;
+				wssx = (wssx < 0) ? 0 : wssx;
+				vssx = (vssx > SCREEN_WIDTH) ? SCREEN_WIDTH : vssx;
+				wssx = (wssx > SCREEN_WIDTH) ? SCREEN_WIDTH : wssx;
+				vssy = (vssy < 0) ? 0 : vssy;
+				wssy = (wssy < 0) ? 0 : wssy;
+				vssy = (vssy > SCREEN_HEIGHT) ? SCREEN_HEIGHT : vssy;
+				wssy = (wssy > SCREEN_HEIGHT) ? SCREEN_HEIGHT : wssy;
+				*/
+
 				ASP_DrawLine(renderer, COLOR, ASP_IVector2C(vssx, vssy), ASP_IVector2C(wssx, wssy));
 				tris[j] = ASP_IVector2C(vssx, vssy);
 			}
@@ -516,10 +548,10 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 		{
 			for (int y = 0; y < maxy - miny; y++)
 			{
-				if (ASP_InTriangle(ASP_IVector2C(minx + x, miny + y), tris[0], tris[1], tris[2]) == 1)
-				{
-					ASP_DrawPixel(renderer, entity.faceColor[i], ASP_IVector2C(minx + x, miny + y));
-				}
+				//if (ASP_InTriangle(ASP_IVector2C(minx + x, miny + y), tris[0], tris[1], tris[2]) == 1)
+				//{
+				//	ASP_DrawPixel(renderer, entity.faceColor[i], ASP_IVector2C(minx + x, miny + y));
+				//}
 			}
 		}
 	}
