@@ -61,7 +61,7 @@ int start()
 
 int update(float deltatime)
 {
-	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
+	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
 
 	iHorizontal = 0;
 	iVertical = 0;
@@ -109,7 +109,7 @@ int update(float deltatime)
 		ASP_Mouseaim = !(ASP_Mouseaim == 1);
 		if (ASP_Mouseaim == 1)
 		{
-			SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 		}
 		else
 		{
@@ -191,19 +191,22 @@ int update(float deltatime)
 
 	/* HUD */
 	ASP_Color color = ASP_ColorC(255, 255, 255, 255);
-	ASP_DrawPixel(renderer, color, ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
-	ASP_DrawRect(renderer, color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));
+	ASP_DrawPixel(color, ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
+	ASP_DrawRect(color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));
 	ASP_IVector2 ssp_bc = ASP_IVector2C(60, 60);
-	ASP_DrawPixel(renderer, color, ssp_bc);
+	ASP_DrawPixel(color, ssp_bc);
 	ASP_IVector2 ssp_pp = ASP_IVector2C(ssp_bc.x + player.position.x * 5, ssp_bc.y + player.position.y * 5);
-	ASP_DrawRect(renderer, color, ASP_IVector2C(ssp_pp.x - 5, ssp_pp.y - 5), ASP_IVector2C(10, 10));
+	ASP_DrawRect(color, ASP_IVector2C(ssp_pp.x - 5, ssp_pp.y - 5), ASP_IVector2C(10, 10));
 	int ssp_ax = sinf(player.rotation.z) * 15;
 	int ssp_ay = cosf(player.rotation.z) * 15;
 	ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
-	ASP_DrawLine(renderer, color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
+	ASP_DrawLine(color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
 
 	/* Sprites */
-	ASP_DrawSprite(renderer, goblin, ASP_IVector2C(0, 0), ASP_IVector2C(box1.scale.y * 10, box1.scale.y * 10));
+	ASP_DrawSprite(goblin, ASP_IVector2C(0, 0), ASP_IVector2C(box1.scale.y * 10, box1.scale.y * 10));
+
+	glUniform2f(uniPos, box1.position.x / 5.0f, box1.position.y / 5.0f);
+	glUniform3f(uniColor, (sinf(ASP_Runtime * 4.0f) + 1.0f) / 2.0f, (cosf(ASP_Runtime * 4.0f) + 1.0f) / 2.0f, 1.0f);
 
 	return 0;
 }

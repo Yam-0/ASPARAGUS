@@ -12,21 +12,24 @@ int ASP_KEYBOARDFOCUSED;
 int ASP_MOUSEFOCUSED;
 int ASP_FOCUSED;
 
+float ASP_Runtime;
+
 int ASPML_X, ASPML_Y, ASPML_DX, ASPML_DY = 0;
 
 SDL_Window *window;
-SDL_Renderer *renderer;
-SDL_Texture *btexture;
-uint32_t *pixelBuffer;
 
 float PI = 3.141592f;
 int ASP_FPS;
+
+GLint uniPos;
+GLint uniColor;
 
 int ASP_init(int (*update)(float), int (*start)())
 {
 	printf("------- USING THE ASPARAGUS ENGINE -------\n");
 
 	ASP_Running = 0;
+	ASP_Runtime = 0;
 
 	float deltatime = 0;
 	int msec = 0;
@@ -47,27 +50,83 @@ int ASP_init(int (*update)(float), int (*start)())
 		return -1;
 	}
 
-	SDL_RenderSetLogicalSize(renderer, 1920, 1080);
-
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GLContext mainContext = SDL_GL_CreateContext(window);
 	gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (renderer == NULL)
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+
+	GLfloat vertices[] = {
+		0.0f, 0.5f,
+		0.5f, -0.5f,
+		-0.5f, -0.5f};
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	char *shader;
+	shader = ASP_LoadShader("../asparagus/shaders/vs.glsl");
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &shader, NULL);
+	glCompileShader(vertexShader);
+
+	shader = ASP_LoadShader("../asparagus/shaders/fs.glsl");
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &shader, NULL);
+	glCompileShader(fragmentShader);
+
+	GLint status1, status2;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status1);
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status2);
+
+	if (status1 == GL_TRUE)
 	{
-		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-		return -1;
+		printf("Compiled vertex shader!\n");
 	}
+	else
+	{
+		printf("Failed to compile vertex shader!\n");
+		char buffer[512];
+		glGetShaderInfoLog(vertexShader, 512, NULL, buffer);
+		printf("Error: %s", buffer);
+	}
+	if (status2 == GL_TRUE)
+	{
+		printf("Compiled fragment shader!\n");
+	}
+	else
+	{
+		printf("Failed to compile fragment shader!\n");
+		char buffer[512];
+		glGetShaderInfoLog(fragmentShader, 512, NULL, buffer);
+		printf("Error: %s", buffer);
+	}
+
+	GLuint shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+
+	glBindFragDataLocation(shaderProgram, 0, "outColor");
+	glLinkProgram(shaderProgram);
+	glUseProgram(shaderProgram);
+
+	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+	glEnableVertexAttribArray(posAttrib);
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+	uniPos = glGetUniformLocation(shaderProgram, "dposition");
+	uniColor = glGetUniformLocation(shaderProgram, "uniColor");
 
 	//Start callback
 	(*start)();
 	ASP_Running = 1;
-
-	SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
-	btexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	//Update loop
 	while (ASP_Running)
@@ -77,21 +136,12 @@ int ASP_init(int (*update)(float), int (*start)())
 
 		ASP_EventHandler();
 
-		int32_t pitch = 0;
-		pixelBuffer = NULL;
-		SDL_LockTexture(btexture, NULL, (void **)&pixelBuffer, &pitch);
-		//SDL_SetRenderTarget(renderer, btexture);
-		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		//SDL_RenderClear(renderer);
-		ASP_DrawFill(renderer, ASP_ColorC(60, 160, 255, 255));
-
 		//Update callback
 		(*update)(deltatime);
 
-		ASP_Render(renderer, window, btexture);
-
-		glClearColor(1.0f, 0.0, 0.0, 1.0);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		SDL_GL_SwapWindow(window);
 
 		//Frame time & deltatime
@@ -100,14 +150,43 @@ int ASP_init(int (*update)(float), int (*start)())
 		deltatime = (float)msec / 1000;
 		deltatime = (deltatime == 0.0f) ? deltatime + 0.0001f : deltatime;
 		ASP_FPS = 1.0f / deltatime;
+		ASP_Runtime += deltatime;
 	}
 
-	SDL_DestroyTexture(btexture);
-	SDL_DestroyRenderer(renderer);
+	glDeleteProgram(shaderProgram);
+	glDeleteShader(fragmentShader);
+	glDeleteShader(vertexShader);
+	glDeleteBuffers(1, &vbo);
+	glDeleteVertexArrays(1, &vao);
+
 	SDL_DestroyWindow(window);
+
 	SDL_Quit();
 
 	return 0;
+}
+
+const char *ASP_LoadShader(char *filename)
+{
+	FILE *sfh = fopen(filename, "r");
+	if (sfh == NULL)
+	{
+		printf("Could not read file %s\n", filename);
+		ferror("error");
+	}
+
+	char c, shader[1000];
+	strcpy(shader, "");
+	while ((c = fgetc(sfh)) != EOF)
+	{
+		strncat(shader, &c, 1);
+	}
+
+	fclose(sfh);
+
+	printf("\nLoaded Shader \"%s\":\n%s\nEND\n", filename, shader);
+	char *re = shader;
+	return re;
 }
 
 int ASP_EventHandler()
@@ -178,12 +257,10 @@ int ASP_EventHandler()
 	return 0;
 }
 
-int ASP_Render(SDL_Renderer *renderer, SDL_Window *window, SDL_Texture *texture)
+int ASP_Render(SDL_Window *window)
 {
-	SDL_UnlockTexture(texture);
-	SDL_RenderCopy(renderer, texture, NULL, NULL);
-	SDL_RenderPresent(renderer);
-
+	glDrawArrays(GL_LINES, 0, 2);
+	glfwSwapBuffers(window);
 	return 0;
 }
 
@@ -224,7 +301,6 @@ ASP_Sprite ASP_LoadSprite(char *name)
 	int pixelcount = x * y;
 	ASP_Color *pixels = malloc(pixelcount * sizeof(ASP_Color));
 	int r, g, b, a;
-	printf("%s", image);
 
 	for (int imgx = 0; imgx < x; imgx++)
 	{
@@ -243,17 +319,6 @@ ASP_Sprite ASP_LoadSprite(char *name)
 
 			a = 255;
 			pixels[imgy * y + imgx] = ASP_ColorC(r, g, b, a);
-
-			/*
-			image[0] is the first pixel's R value.
-			image[1] is the first pixel's G value.
-			image[2] is the first pixel's B value.
-			image[3] is the second pixel's R value.
-			image[4] is the second pixel's G value.
-			image[5] is the second pixel's B value.
-			image[6] is the third pixel's R value.
-			image[7] is the third pixel's G value.
-			*/
 		}
 	}
 
@@ -274,7 +339,7 @@ ASP_Color ASP_SampleSprite(ASP_Sprite sprite, float x, float y)
 	return sprite.pixels[ny * sprite.w + nx];
 }
 
-int ASP_DrawSprite(SDL_Renderer *renderer, ASP_Sprite sprite, ASP_IVector2 position, ASP_IVector2 scale)
+int ASP_DrawSprite(ASP_Sprite sprite, ASP_IVector2 position, ASP_IVector2 scale)
 {
 	ASP_Color color;
 	float nx, ny;
@@ -286,22 +351,22 @@ int ASP_DrawSprite(SDL_Renderer *renderer, ASP_Sprite sprite, ASP_IVector2 posit
 			nx = mapf(x, 0, scale.x, 0, 4);
 			ny = mapf(y, 0, scale.y, 0, 4);
 			color = ASP_SampleSprite(sprite, nx, ny);
-			ASP_DrawPixel(renderer, color, ASP_IVector2C(x, y));
+			ASP_DrawPixel(color, ASP_IVector2C(x, y));
 		}
 	}
 }
 
-int ASP_DrawPixel(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p)
+int ASP_DrawPixel(ASP_Color color, ASP_IVector2 p)
 {
 	if (p.y < 0 || p.y >= SCREEN_HEIGHT || p.x < 0 || p.x >= SCREEN_WIDTH)
 		return 1;
 	int i = index(p.x, p.y, SCREEN_WIDTH);
-	pixelBuffer[i] = (color.a << 24) | (color.r << 16) | (color.g << 8) | color.b;
+
 	return 0;
 }
-int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_IVector2 p2)
+int ASP_DrawLine(ASP_Color color, ASP_IVector2 p1, ASP_IVector2 p2)
 {
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+	//SDL_SetRenderDrawColor(color.r, color.g, color.b, color.a);
 
 	ASP_IVector2 dp = ASP_V_Sub_I2(p2, p1);
 
@@ -317,34 +382,34 @@ int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_I
 	{
 		drawpoint.x = round(p1.x + xOffset * i);
 		drawpoint.y = round(p1.y + yOffset * i);
-		ASP_DrawPixel(renderer, color, drawpoint);
+		ASP_DrawPixel(color, drawpoint);
 	}
 
 	return 0;
 }
 
-int ASP_DrawRect(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 position, ASP_IVector2 scale)
+int ASP_DrawRect(ASP_Color color, ASP_IVector2 position, ASP_IVector2 scale)
 {
 	ASP_IVector2 p1 = ASP_IVector2C(position.x, position.y);
 	ASP_IVector2 p2 = ASP_IVector2C(position.x + scale.x, position.y);
 	ASP_IVector2 p3 = ASP_IVector2C(position.x + scale.x, position.y + scale.y);
 	ASP_IVector2 p4 = ASP_IVector2C(position.x, position.y + scale.y);
 
-	ASP_DrawLine(renderer, color, p1, p2);
-	ASP_DrawLine(renderer, color, p2, p3);
-	ASP_DrawLine(renderer, color, p3, p4);
-	ASP_DrawLine(renderer, color, p4, p1);
+	ASP_DrawLine(color, p1, p2);
+	ASP_DrawLine(color, p2, p3);
+	ASP_DrawLine(color, p3, p4);
+	ASP_DrawLine(color, p4, p1);
 
 	return 0;
 }
 
-int ASP_DrawFill(SDL_Renderer *renderer, ASP_Color color)
+int ASP_DrawFill(ASP_Color color)
 {
 	for (int i = 0; i < SCREEN_WIDTH; i++)
 	{
 		for (int j = 0; j < SCREEN_HEIGHT; j++)
 		{
-			ASP_DrawPixel(renderer, color, ASP_IVector2C(i, j));
+			ASP_DrawPixel(color, ASP_IVector2C(i, j));
 		}
 	}
 }
@@ -432,9 +497,9 @@ int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
 			}
 		}
 
-		ASP_DrawLine(renderer, COLOR, tris[0], tris[1]);
-		ASP_DrawLine(renderer, COLOR, tris[1], tris[2]);
-		ASP_DrawLine(renderer, COLOR, tris[2], tris[0]);
+		ASP_DrawLine(COLOR, tris[0], tris[1]);
+		ASP_DrawLine(COLOR, tris[1], tris[2]);
+		ASP_DrawLine(COLOR, tris[2], tris[0]);
 
 		ASP_IVector2 min, max = ASP_IVector2C(tris[0].x, tris[0].y);
 		int vx, vy;

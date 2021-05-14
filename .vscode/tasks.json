@@ -18,10 +18,14 @@
 				"../lib",
 				"-m64",
 				"-lglad",
+				"-lglfw3",
 				"-lmingw32",
 				"-lSDL2main",
 				"-lSDL2",
-				"-mwindows"
+				"-lgdi32",
+				"-luser32",
+				"-lkernel32"
+				//"-mwindows"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}/scripts"
