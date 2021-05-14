@@ -2,7 +2,7 @@
 title build
 echo DEBUGGING
 
-"../mingw-w64/mingw64/bin/gcc.exe" -v -w -g "../src/main.c" -o "../build/game.exe" -I "../sdl/include" -L "../sdl/lib" -lmingw32 -lSDL2main -lSDL2
+"../mingw-w64/mingw64/bin/gcc" -v -w -g "../src/main.c" -o "../build/game.exe" -I "../include" -L "../lib" -m64 -lglad -lmingw32 -lSDL2main -lSDL2
 IF %ERRORLEVEL%==0 (
 	echo BUILD SUCCESFUL.
 	if exist "../build/game.exe" (

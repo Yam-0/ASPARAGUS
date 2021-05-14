@@ -40,7 +40,7 @@ int ASP_init(int (*update)(float), int (*start)())
 		return -1;
 	}
 
-	window = SDL_CreateWindow("ASPARAGUS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("ASPARAGUS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
 	if (window == NULL)
 	{
 		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -48,6 +48,12 @@ int ASP_init(int (*update)(float), int (*start)())
 	}
 
 	SDL_RenderSetLogicalSize(renderer, 1920, 1080);
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GLContext mainContext = SDL_GL_CreateContext(window);
+	gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (renderer == NULL)
@@ -83,6 +89,10 @@ int ASP_init(int (*update)(float), int (*start)())
 		(*update)(deltatime);
 
 		ASP_Render(renderer, window, btexture);
+
+		glClearColor(1.0f, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		SDL_GL_SwapWindow(window);
 
 		//Frame time & deltatime
 		clock_t difference = clock() - before;

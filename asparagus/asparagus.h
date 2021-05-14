@@ -5,7 +5,8 @@
 #include <time.h>
 #include <math.h>
 
-#include "../sdl/include/SDL2/SDL.h"
+#include "../include/SDL2/SDL.h"
+#include "../include/glad/glad.h"
 #include "structs.c"
 #include "aspgeneric.c"
 #include "aspkeys.c"
