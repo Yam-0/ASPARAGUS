@@ -293,19 +293,14 @@ int ASP_DrawLine(SDL_Renderer *renderer, ASP_Color color, ASP_IVector2 p1, ASP_I
 {
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
-	int dx = p2.x - p1.x;
-	int dy = p2.y - p1.y;
+	ASP_IVector2 dp = ASP_V_Sub_I2(p2, p1);
 
-	float l_tr = (float)dy / (float)dx;
+	float l_tr = (float)dp.y / (float)dp.x;
 	float l_angle = atanf(l_tr);
-	float l_length = sqrtf(dx * dx + dy * dy);
-
-	float xOffset;
-	float yOffset;
-
+	float l_length = sqrtf(dp.x * dp.x + dp.y * dp.y);
 	int l_dirM = 2 * (p2.x >= p1.x) - 1;
-	xOffset = cosf(l_angle) * l_dirM;
-	yOffset = sinf(l_angle) * l_dirM;
+	float xOffset = cosf(l_angle) * l_dirM;
+	float yOffset = sinf(l_angle) * l_dirM;
 
 	ASP_IVector2 drawpoint;
 	for (int i = 0; i < l_length; i++)
@@ -342,35 +337,6 @@ int ASP_DrawFill(SDL_Renderer *renderer, ASP_Color color)
 			ASP_DrawPixel(renderer, color, ASP_IVector2C(i, j));
 		}
 	}
-}
-
-ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
-{
-	ASP_FVector3 tempvector = vector;
-
-	switch (axis)
-	{
-	case 0: //x
-		tempvector.x = vector.x;
-		tempvector.z = cosf(a) * vector.z - sinf(a) * vector.y;
-		tempvector.y = sinf(a) * vector.z + cosf(a) * vector.y;
-		break;
-	case 1: //y
-		//tempvector.x = cosf(a) * vector.z - sinf(a) * vector.x;
-		//tempvector.y = vector.y;
-		//tempvector.z = sinf(a) * vector.z + cosf(a) * vector.x;
-		break;
-	case 2: //z
-		tempvector.x = cosf(a) * vector.x - sinf(a) * vector.y;
-		tempvector.y = sinf(a) * vector.x + cosf(a) * vector.y;
-		tempvector.z = vector.z;
-		break;
-
-	default:
-		break;
-	}
-
-	return tempvector;
 }
 
 int ASP_InTriangle(ASP_IVector2 p, ASP_IVector2 a, ASP_IVector2 b, ASP_IVector2 c)
