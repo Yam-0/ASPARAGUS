@@ -41,6 +41,14 @@ int isEven(int value)
 	return x;
 }
 
+float clampf(float value, float min, float max)
+{
+	value = (value > max) ? max : value;
+	value = (value < min) ? min : value;
+
+	return value;
+}
+
 ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
 {
 	ASP_FVector3 tempvector = vector;
@@ -254,9 +262,15 @@ float *ASP_Mat4f_GetOrientationMatrix(ASP_Entity entity, int inverted)
 {
 	inverted = (inverted > 1 || inverted < 0) ? 0 : inverted;
 	float *om = malloc(sizeof(float) * 16);
+	for (int i = 0; i < 16; i++)
+	{
+		om[i] = ASP_MAT4F_I[i];
+	}
+
 	float *rmx = malloc(sizeof(float) * 16);
 	float *rmy = malloc(sizeof(float) * 16);
 	float *rmz = malloc(sizeof(float) * 16);
+
 	rmx = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_X, -entity.rotation.x * (2 * inverted - 1));
 	rmy = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_Y, -entity.rotation.y * (2 * inverted - 1));
 	rmz = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_Z, -entity.rotation.z * (2 * inverted - 1));
@@ -265,6 +279,7 @@ float *ASP_Mat4f_GetOrientationMatrix(ASP_Entity entity, int inverted)
 	free(rmx);
 	free(rmy);
 	free(rmz);
+
 	return om;
 }
 
