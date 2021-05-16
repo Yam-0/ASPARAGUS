@@ -141,6 +141,15 @@ const ASP_IVector3 ASP_UNIT_k_I3 = {0, 0, 1};
 const ASP_FVector2 ASP_UNIT_k_F2 = {0.0f, 0.0f};
 const ASP_FVector3 ASP_UNIT_k_F3 = {0.0f, 0.0f, 1.0f};
 
+const float ASP_MAT3F_I[9] = {1.0f, 0.0f, 0.0f,
+							  0.0f, 1.0f, 0.0f,
+							  0.0f, 0.0f, 1.0f};
+
+const float ASP_MAT4F_I[16] = {1.0f, 0.0f, 0.0f, 0.0f,
+							   0.0f, 1.0f, 0.0f, 0.0f,
+							   0.0f, 0.0f, 1.0f, 0.0f,
+							   0.0f, 0.0f, 0.0f, 1.0f};
+
 /* Vector Arithmetic */
 ASP_IVector2 ASP_V_Add_I2(ASP_IVector2 vector1, ASP_IVector2 vector2)
 {

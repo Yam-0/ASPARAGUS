@@ -184,52 +184,91 @@ int update(float deltatime)
 	bullet.position.y += bulletspeed.y;
 	bullet.position.z += bulletspeed.z;
 
-	ASP_DrawEntity(box1, player);
-	ASP_DrawEntity(box2, player);
-	ASP_DrawEntity(bullet, player);
-	ASP_DrawEntity(pyramid1, player);
+	//ASP_DrawEntity(box1, player);
+	//ASP_DrawEntity(box2, player);
+	//ASP_DrawEntity(bullet, player);
+	//ASP_DrawEntity(pyramid1, player);
 
 	/* HUD */
-	ASP_Color color = ASP_ColorC(255, 255, 255, 255);
-	ASP_DrawPixel(color, ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
-	ASP_DrawRect(color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));
-	ASP_IVector2 ssp_bc = ASP_IVector2C(60, 60);
-	ASP_DrawPixel(color, ssp_bc);
-	ASP_IVector2 ssp_pp = ASP_IVector2C(ssp_bc.x + player.position.x * 5, ssp_bc.y + player.position.y * 5);
-	ASP_DrawRect(color, ASP_IVector2C(ssp_pp.x - 5, ssp_pp.y - 5), ASP_IVector2C(10, 10));
-	int ssp_ax = sinf(player.rotation.z) * 15;
-	int ssp_ay = cosf(player.rotation.z) * 15;
-	ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
-	ASP_DrawLine(color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
+	//ASP_Color color = ASP_ColorC(255, 255, 255, 255);
+	//ASP_DrawPixel(color, ASP_IVector2C(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2));
+	//ASP_DrawRect(color, ASP_IVector2C(10, 10), ASP_IVector2C(100, 100));
+	//ASP_IVector2 ssp_bc = ASP_IVector2C(60, 60);
+	//ASP_DrawPixel(color, ssp_bc);
+	//ASP_IVector2 ssp_pp = ASP_IVector2C(ssp_bc.x + player.position.x * 5, ssp_bc.y + player.position.y * 5);
+	//ASP_DrawRect(color, ASP_IVector2C(ssp_pp.x - 5, ssp_pp.y - 5), ASP_IVector2C(10, 10));
+	//int ssp_ax = sinf(player.rotation.z) * 15;
+	//int ssp_ay = cosf(player.rotation.z) * 15;
+	//ASP_IVector2 ssp_ap = ASP_IVector2C(ssp_ax, ssp_ay);
+	//ASP_DrawLine(color, ASP_IVector2C(ssp_pp.x, ssp_pp.y), ASP_IVector2C(ssp_pp.x + ssp_ap.x, ssp_pp.y + ssp_ap.y));
 
 	/* Sprites */
 	ASP_DrawSprite(goblin, ASP_IVector2C(0, 0), ASP_IVector2C(box1.scale.y * 10, box1.scale.y * 10));
 
-	/* OPENGL MAGIC */
+	/* LOCAL VERTEX POSITIONS */
 	float vertices[] = {
-		0.0f, 0.0f, 0.5f,
-		player.position.x, player.position.y, player.position.z,
-		player.rotation.x, player.rotation.y, player.rotation.z,
-		box1.position.x, box1.position.y, box1.position.z,
-		box1.scale.x, box1.scale.y, box1.scale.z,
-		box1.rotation.x, box1.rotation.y, box1.rotation.z,
-
+		-0.5f, 0.0, -0.5f,
 		0.5f, 0.0f, -0.5f,
-		player.position.x, player.position.y, player.position.z,
-		player.rotation.x, player.rotation.y, player.rotation.z,
-		box1.position.x, box1.position.y, box1.position.z,
-		box1.scale.x, box1.scale.y, box1.scale.z,
-		box1.rotation.x, box1.rotation.y, box1.rotation.z,
+		0.0f, 0.0f, 0.5f};
 
-		-0.5f, 0.0f, -0.5f,
-		player.position.x, player.position.y, player.position.z,
-		player.rotation.x, player.rotation.y, player.rotation.z,
-		box1.position.x, box1.position.y, box1.position.z,
-		box1.scale.x, box1.scale.y, box1.scale.z,
-		box1.rotation.x, box1.rotation.y, box1.rotation.z};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glUniform3f(uniColor, (sinf(ASP_Runtime * 4.0f) + 1.0f) / 2.0f, (cosf(ASP_Runtime * 4.0f) + 1.0f) / 2.0f, 1.0f);
+
+	float *mm = ASP_Mat4f_GetModelMatrix(box1);
+	float *vm = ASP_Mat4f_GetViewMatrix(player);
+	float *pm = ASP_Mat4f_GetProjectionMatrix(PI / 2);
+
+	/*
+	mat4 model, view, projection;
+	float p[3] = {box1.position.x, box1.position.y, box1.position.z};
+	glm_translate(model, p);
+	float px[3] = {1.0f, 0.0f, 0.0f};
+	float py[3] = {0.0f, 1.0f, 1.0f};
+	float pz[3] = {0.0f, 0.0f, 1.0f};
+	glm_rotate(model, box1.rotation.z * (180 / PI), pz);
+	glm_rotate(model, box1.rotation.y * (180 / PI), py);
+	glm_rotate(model, box1.rotation.z * (180 / PI), pz);
+
+	float aspect = 16 / 9;
+	float znear = 0.01f;
+	float zfar = 1000.0f;
+	float fov = PI / 2;
+
+	float pitch = glm_clamp(player.rotation.x, -fov, fov);
+
+	float pdir[3] = {cosf(player.rotation.x) * sinf(-player.rotation.z),
+					 sinf(player.rotation.x),
+					 sinf(player.rotation.x) * cosf(-player.rotation.z)};
+
+	glm_normalize(pdir);
+
+	float cpright[3];
+	float cpup[3];
+	glm_vec3_cross((vec3){0.0f, 1.0f, 0.0f}, pdir, cpright);
+	glm_vec3_cross(pdir, cpright, cpup);
+	glm_mat4_identity(view);
+	glm_mat4_identity(projection);
+
+	float pp[3] = {player.position.x, player.position.y, player.position.z};
+	float wpp[3];
+	glm_vec3_add(pp, pdir, wpp);
+	glm_lookat(pp, wpp, cpup, view);
+	glm_perspective(fov, aspect, znear, zfar, projection);
+	*/
+	if (ASPMP_M1)
+	{
+		ASP_Mat4f_Print(vm);
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, mm);
+	glUniformMatrix4fv(viewMatrix, 1, GL_FALSE, vm);
+	glUniformMatrix4fv(projectionMatrix, 1, GL_FALSE, pm);
+
+	free(mm);
+	free(vm);
+	free(pm);
 
 	return 0;
 }

@@ -21,7 +21,7 @@ SDL_Window *window;
 float PI = 3.141592f;
 int ASP_FPS;
 
-GLint uniColor, uniDepth, uniFov, uniWindowSize;
+GLint uniColor, projectionMatrix, viewMatrix, modelMatrix;
 
 int ASP_init(int (*update)(float), int (*start)())
 {
@@ -91,36 +91,15 @@ int ASP_init(int (*update)(float), int (*start)())
 	glLinkProgram(shaderProgram);
 	glUseProgram(shaderProgram);
 
-	GLint vertexPosition = glGetAttribLocation(shaderProgram, "vertexPosition");
-	GLint cameraPosition = glGetAttribLocation(shaderProgram, "cameraPosition");
-	GLint cameraRotation = glGetAttribLocation(shaderProgram, "cameraRotation");
-	GLint objectPosition = glGetAttribLocation(shaderProgram, "objectPosition");
-	GLint objectScale = glGetAttribLocation(shaderProgram, "objectScale");
-	GLint ObjectRotation = glGetAttribLocation(shaderProgram, "objectRotation");
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 18 * sizeof(float), (void *)0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 18 * sizeof(float), (void *)(3 * sizeof(float)));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 18 * sizeof(float), (void *)(6 * sizeof(float)));
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 18 * sizeof(float), (void *)(9 * sizeof(float)));
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 18 * sizeof(float), (void *)(12 * sizeof(float)));
-	glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 18 * sizeof(float), (void *)(15 * sizeof(float)));
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
-	glEnableVertexAttribArray(5);
+	GLint vertexPosition = glGetAttribLocation(shaderProgram, "position");
+	glVertexAttribPointer(vertexPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+	glEnableVertexAttribArray(vertexPosition);
 
 	uniColor = glGetUniformLocation(shaderProgram, "uniColor");
 
-	uniDepth = glGetUniformLocation(shaderProgram, "depth");
-	uniFov = glGetUniformLocation(shaderProgram, "fov");
-	uniWindowSize = glGetUniformLocation(shaderProgram, "windowSize");
-
-	glUniform1f(uniDepth, PI / 2);
-	glUniform1f(uniFov, PI);
-	glUniform2f(uniWindowSize, SCREEN_WIDTH, SCREEN_HEIGHT);
+	modelMatrix = glGetUniformLocation(shaderProgram, "m");
+	viewMatrix = glGetUniformLocation(shaderProgram, "v");
+	projectionMatrix = glGetUniformLocation(shaderProgram, "p");
 
 	//Start callback
 	(*start)();
