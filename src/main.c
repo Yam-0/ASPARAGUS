@@ -205,7 +205,30 @@ int update(float deltatime)
 	/* Sprites */
 	ASP_DrawSprite(goblin, ASP_IVector2C(0, 0), ASP_IVector2C(box1.scale.y * 10, box1.scale.y * 10));
 
-	glUniform2f(uniPos, box1.position.x / 5.0f, box1.position.y / 5.0f);
+	/* OPENGL MAGIC */
+	float vertices[] = {
+		0.0f, 0.0f, 0.5f,
+		player.position.x, player.position.y, player.position.z,
+		player.rotation.x, player.rotation.y, player.rotation.z,
+		box1.position.x, box1.position.y, box1.position.z,
+		box1.scale.x, box1.scale.y, box1.scale.z,
+		box1.rotation.x, box1.rotation.y, box1.rotation.z,
+
+		0.5f, 0.0f, -0.5f,
+		player.position.x, player.position.y, player.position.z,
+		player.rotation.x, player.rotation.y, player.rotation.z,
+		box1.position.x, box1.position.y, box1.position.z,
+		box1.scale.x, box1.scale.y, box1.scale.z,
+		box1.rotation.x, box1.rotation.y, box1.rotation.z,
+
+		-0.5f, 0.0f, -0.5f,
+		player.position.x, player.position.y, player.position.z,
+		player.rotation.x, player.rotation.y, player.rotation.z,
+		box1.position.x, box1.position.y, box1.position.z,
+		box1.scale.x, box1.scale.y, box1.scale.z,
+		box1.rotation.x, box1.rotation.y, box1.rotation.z};
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
 	glUniform3f(uniColor, (sinf(ASP_Runtime * 4.0f) + 1.0f) / 2.0f, (cosf(ASP_Runtime * 4.0f) + 1.0f) / 2.0f, 1.0f);
 
 	return 0;

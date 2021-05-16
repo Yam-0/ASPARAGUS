@@ -22,6 +22,9 @@ int ASP_init(int (*update)(float), int (*start)());
 /* Load asparagus shader from ./shader folder */
 const char *ASP_LoadShader(char *filename);
 
+/* Compile glsl shader */
+GLuint ASP_CompileShader(GLuint shader, char *code);
+
 /* Hard sleep for x milli secs */
 int ASP_sleep(int m_secs);
 
