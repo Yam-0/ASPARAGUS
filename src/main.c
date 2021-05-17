@@ -19,10 +19,11 @@ ASP_Sprite goblin;
 ASP_Sprite dog;
 
 #define IMG_PATH1 "../data/goblin.png"
-#define IMG_PATH2 "../data/dog.png"
 
 void start()
 {
+	printf("STARTED.\n");
+
 	//Player
 	player = ASP_EntityC();
 	player.position.x = 0;
@@ -35,21 +36,12 @@ void start()
 
 	//World objects
 	box1 = ASP_GenerateBoxEntity();
-	box2 = ASP_GenerateBoxEntity();
-	box2.position = ASP_FVector3C(1, 1, 0);
-	bullet = ASP_GenerateBoxEntity();
-	bullet.position = ASP_FVector3C(0, 0, 0);
-	bullet.scale = ASP_FVector3C(0.2f, 0.2f, 0.2f);
-	pyramid1 = ASP_GeneratePyramidEntity();
-	pyramid1.position = ASP_FVector3C(2, 1, 0);
 
 	//Settings
 	state.grabMouse = 1;
 
 	//Sprites
 	goblin = ASP_LoadSprite(IMG_PATH1);
-	dog = ASP_LoadSprite(IMG_PATH2);
-
 	return;
 }
 
@@ -161,6 +153,7 @@ void update()
 		box1.scale.y -= 5 * deltatime;
 	}
 
+	/*
 	//Shoot
 	if (ASPMP_M1 == 1)
 	{
@@ -179,16 +172,15 @@ void update()
 	bullet.position.x += bulletspeed.x;
 	bullet.position.y += bulletspeed.y;
 	bullet.position.z += bulletspeed.z;
+	*/
 
 	/* LOCAL VERTEX POSITIONS */
 	float vertices[] = {
 		-0.5f, 0.0, -0.5f,
-		0.5f, 0.0f, -0.5f,
+		0.5f, 0.5f, -0.5f,
 		0.0f, 0.0f, 0.5f};
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glUniform3f(uniColor, (sinf(window.totalSeconds * 4.0f) + 1.0f) / 2.0f, (cosf(window.totalSeconds * 4.0f) + 1.0f) / 2.0f, 1.0f);
 
 	float *mm = ASP_Mat4f_GetModelMatrix(box1);
 	ASP_Mat4f_uniform(state.shader, "m", mm);
@@ -203,9 +195,12 @@ void update()
 			   player.rotation.x,
 			   player.rotation.y,
 			   player.rotation.z);
+
+		printf("MODEL MATRIX:\n");
+		ASP_Mat4f_Print(mm);
 	}
 
-	free(mm);
+	//free(mm);
 
 	return;
 }

@@ -21,14 +21,6 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 	float deltatime = 0;
 	int msec = 0;
 
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
 	/* SHADERS */
 	state.shader = ASP_CreateShader("../data/shaders/shader.vert", "../data/shaders/shader.frag", 0, NULL);
 	ASP_BindShader(state.shader);
@@ -60,12 +52,53 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		window.deltatime = (deltatime == 0.0f) ? deltatime + 0.0001f : deltatime;
 		window.fps = 1.0f / deltatime;
 		window.totalSeconds += deltatime;
+
+		/*
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			printf("ERROR!\n");
+			//printf("error:%i\n", err);
+			printf("error:%i\n", err);
+
+			switch (err)
+			{
+			case GL_INVALID_ENUM:
+				printf("error: 1\n");
+				break;
+			case GL_INVALID_VALUE:
+				printf("error: 2\n");
+				break;
+			case GL_INVALID_OPERATION:
+				printf("error: 3\n");
+				break;
+			case GL_STACK_OVERFLOW:
+				printf("error: 4\n");
+				break;
+			case GL_STACK_UNDERFLOW:
+				printf("error: 5\n");
+				break;
+			case GL_OUT_OF_MEMORY:
+				printf("error: 6\n");
+				break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION:
+				printf("error: 7\n");
+				break;
+
+			default:
+				printf("error not found\n");
+				break;
+			}
+
+			printf("\n");
+		}
+		*/
 	}
 
 	ASP_DestroyShader(state.shader);
 
-	glDeleteBuffers(1, &vbo);
-	glDeleteVertexArrays(1, &vao);
+	//glDeleteBuffers(1, &vbo);
+	//glDeleteVertexArrays(1, &vao);
 
 	SDL_DestroyWindow(window.handle);
 

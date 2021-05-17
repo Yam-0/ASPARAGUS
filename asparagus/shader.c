@@ -1,7 +1,5 @@
 #include "include/shader.h"
 
-GLint uniColor, projectionMatrix, viewMatrix, modelMatrix;
-
 const char *ASP_LoadShader(char *filename)
 {
 	FILE *sfh = fopen(filename, "r");
@@ -96,9 +94,17 @@ struct ASP_Shader ASP_CreateShader(char *filepath_vs, char *filepath_fs, size_t 
 	glAttachShader(shader.shader_handle, shader.vs_handle);
 	glAttachShader(shader.shader_handle, shader.fs_handle);
 
-	GLint vertexPosition = glGetAttribLocation(state.shader.shader_handle, "position");
-	glVertexAttribPointer(vertexPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-	glEnableVertexAttribArray(vertexPosition);
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	//GLint vertexPosition = glGetAttribLocation(state.shader.shader_handle, "position");
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+	glEnableVertexAttribArray(0);
 
 	glBindFragDataLocation(shader.shader_handle, 0, "outColor");
 	glLinkProgram(shader.shader_handle);
@@ -107,16 +113,17 @@ struct ASP_Shader ASP_CreateShader(char *filepath_vs, char *filepath_fs, size_t 
 	GLint linked;
 	glGetProgramiv(shader.shader_handle, GL_LINK_STATUS, &linked);
 
-	if (linked == GL_TRUE)
+	if (linked)
 	{
 		printf("Linked shader!\n");
 		return shader;
 	}
 	else
 	{
-		printf("Failed to Linked shader!\n");
+		printf("Failed to Link shader!\n");
 		char buffer[512];
-		glGetShaderInfoLog(shader.shader_handle, 512, NULL, buffer);
+		glGetProgramInfoLog(shader.shader_handle, 512, NULL, buffer);
+		printf("Error: %s", buffer);
 		return shader;
 	}
 
@@ -135,13 +142,15 @@ void ASP_BindShader(struct ASP_Shader shader)
 }
 void ASP_Mat4f_uniform(struct ASP_Shader shader, char *name, mat4 m)
 {
+
+	glMatrixMode(GL_MODELVIEW);
 	GLint location = glGetUniformLocation(shader.shader_handle, name);
-	glUniformMatrix4fv(location, 1, GL_FALSE, m);
+	glUniformMatrix4fv(location, 1, GL_FALSE, m[0]);
 }
 void ASP_Mat4f_camera(struct ASP_Shader shader, struct ASP_Camera *camera)
 {
-	ASP_Mat4f_uniform(shader, "p", camera->proj[0]);
-	ASP_Mat4f_uniform(shader, "v", camera->view[0]);
+	ASP_Mat4f_uniform(shader, "p", camera->proj);
+	ASP_Mat4f_uniform(shader, "v", camera->view);
 
 	if (ASPMP_M1)
 	{
