@@ -1,58 +1,32 @@
-#include "./asparagus.h"
+#include "include/asparagus.h"
+#include "window.c"
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 360;
 int DISPLAY_WIDTH;
 int DISPLAY_HEIGHT;
 
-int ASP_Running = 0;
-int ASP_Sleeping = 0;
-int ASP_Mouseaim = 0;
 int ASP_KEYBOARDFOCUSED;
 int ASP_MOUSEFOCUSED;
 int ASP_FOCUSED;
 
-float ASP_Runtime;
-
-int ASPML_X, ASPML_Y, ASPML_DX, ASPML_DY = 0;
-
-SDL_Window *window;
-
 float PI = 3.141592f;
-int ASP_FPS;
 
 GLint uniColor, projectionMatrix, viewMatrix, modelMatrix;
 
-int ASP_init(int (*update)(float), int (*start)())
+int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP_CALLBACK destroy)
 {
 	printf("------- USING THE ASPARAGUS ENGINE -------\n");
 
-	ASP_Running = 0;
-	ASP_Runtime = 0;
+	ASP_CreateWindow(start, update, tick, destroy);
+	state.window = &window;
+	state.running = ASP_TRUE;
 
 	float deltatime = 0;
 	int msec = 0;
 
-	ASPK_Right, ASPK_Left, ASPK_Down, ASPK_Up = 0;
-
-	//Initialize SDL
-	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
-	{
-		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-		return -1;
-	}
-
-	window = SDL_CreateWindow("ASPARAGUS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
-	if (window == NULL)
-	{
-		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-		return -1;
-	}
-
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GLContext mainContext = SDL_GL_CreateContext(window);
+	SDL_GLContext mainContext = SDL_GL_CreateContext(window.handle);
 	gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 
 	GLuint vao;
@@ -102,11 +76,10 @@ int ASP_init(int (*update)(float), int (*start)())
 	projectionMatrix = glGetUniformLocation(shaderProgram, "p");
 
 	//Start callback
-	(*start)();
-	ASP_Running = 1;
+	window.start();
 
 	//Update loop
-	while (ASP_Running)
+	while (state.running)
 	{
 		//Time before callback
 		clock_t before = clock();
@@ -114,20 +87,17 @@ int ASP_init(int (*update)(float), int (*start)())
 		ASP_EventHandler();
 
 		//Update callback
-		(*update)(deltatime);
+		window.update();
 
-		glClearColor(0.0, 0.0, 0.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		SDL_GL_SwapWindow(window);
+		ASP_Render();
 
 		//Frame time & deltatime
 		clock_t difference = clock() - before;
 		msec = difference * 1000 / CLOCKS_PER_SEC;
 		deltatime = (float)msec / 1000;
-		deltatime = (deltatime == 0.0f) ? deltatime + 0.0001f : deltatime;
-		ASP_FPS = 1.0f / deltatime;
-		ASP_Runtime += deltatime;
+		window.deltatime = (deltatime == 0.0f) ? deltatime + 0.0001f : deltatime;
+		window.fps = 1.0f / deltatime;
+		window.totalSeconds += deltatime;
 	}
 
 	glDeleteProgram(shaderProgram);
@@ -136,7 +106,7 @@ int ASP_init(int (*update)(float), int (*start)())
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
 
-	SDL_DestroyWindow(window);
+	SDL_DestroyWindow(window.handle);
 
 	SDL_Quit();
 
@@ -220,38 +190,20 @@ int ASP_EventHandler()
 	SDL_Event event;
 	SDL_PollEvent(&event);
 
-	ASP_KEYBOARDFOCUSED = (window == SDL_GetKeyboardFocus()) ? 1 : 0;
-	ASP_MOUSEFOCUSED = (window == SDL_GetMouseFocus()) ? 1 : 0;
+	state.keyboardFocus = (window.handle == SDL_GetKeyboardFocus()) ? ASP_TRUE : ASP_FALSE;
+	state.mouseFocus = (window.handle == SDL_GetMouseFocus()) ? ASP_TRUE : ASP_FALSE;
+
+	ASP_HandleCursor();
 
 	SDL_DisplayMode DM;
 	SDL_GetCurrentDisplayMode(0, &DM);
 	DISPLAY_WIDTH = DM.w;
 	DISPLAY_HEIGHT = DM.h;
 
-	int tmplx, tmply = 0;
-	SDL_GetMouseState(&tmplx, &tmply);
-	SDL_ShowCursor(!ASP_Mouseaim);
-	ASPML_DX, ASPML_DY = 0;
-	if (ASP_MOUSEFOCUSED == 1 && ASP_KEYBOARDFOCUSED == 1)
-	{
-		ASPML_DX = ASPML_X - tmplx;
-		ASPML_DY = ASPML_Y - tmply;
-
-		if (ASP_Mouseaim == 1)
-		{
-			SDL_WarpMouseInWindow(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-			tmplx = SCREEN_WIDTH / 2;
-			tmply = SCREEN_HEIGHT / 2;
-		}
-	}
-
-	ASPML_X = tmplx;
-	ASPML_Y = tmply;
-
 	switch (event.type)
 	{
 	case SDL_QUIT:
-		ASP_Running = 0;
+		//state.running = ASP_FALSE;
 		break;
 
 	case SDL_MOUSEBUTTONDOWN:
@@ -282,31 +234,12 @@ int ASP_EventHandler()
 	return 0;
 }
 
-int ASP_Render(SDL_Window *window)
+int ASP_Render()
 {
-	glDrawArrays(GL_LINES, 0, 2);
-	glfwSwapBuffers(window);
-	return 0;
-}
-
-int ASP_sleep(int m_secs)
-{
-	ASP_Sleeping = 1;
-	int sleeptime = m_secs;
-
-	clock_t before = clock();
-
-	//Sleep loop
-	while (ASP_Sleeping)
-	{
-		clock_t difference = clock() - before;
-		sleeptime = difference * 1000 / CLOCKS_PER_SEC;
-		if (sleeptime >= m_secs)
-		{
-			ASP_Sleeping = 0;
-		}
-	}
-
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	SDL_GL_SwapWindow(window.handle);
 	return 0;
 }
 

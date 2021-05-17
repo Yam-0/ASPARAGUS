@@ -1,8 +1,6 @@
-#define ASP_AXIS_X 0
-#define ASP_AXIS_Y 1
-#define ASP_AXIS_Z 2
-#define ASP_TRUE 1
-#define ASP_FALSE 0
+#include "include/vec.h"
+#include "include/structs.h"
+#include "include/util.h"
 
 float overflowf(float value, float bottom, float top)
 {
@@ -32,13 +30,6 @@ float mapf(float value,
 int index(int x, int y, int width)
 {
 	return (y * width + x);
-}
-
-int isEven(int value)
-{
-	int x = value;
-	x = x % 2 == 0 ? x : x - 1;
-	return x;
 }
 
 float clampf(float value, float min, float max)
@@ -271,9 +262,9 @@ float *ASP_Mat4f_GetOrientationMatrix(ASP_Entity entity, int inverted)
 	float *rmy = malloc(sizeof(float) * 16);
 	float *rmz = malloc(sizeof(float) * 16);
 
-	rmx = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_X, -entity.rotation.x * (2 * inverted - 1));
-	rmy = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_Y, -entity.rotation.y * (2 * inverted - 1));
-	rmz = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_Z, -entity.rotation.z * (2 * inverted - 1));
+	rmx = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_X, entity.rotation.x * (2 * inverted - 1));
+	rmy = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_Y, entity.rotation.y * (2 * inverted - 1));
+	rmz = ASP_Mat4f_GetRotationMatrix(ASP_AXIS_Z, entity.rotation.z * (2 * inverted - 1));
 	om = ASP_Mat4f_Mult(rmx, rmy);
 	om = ASP_Mat4f_Mult(om, rmz);
 	free(rmx);

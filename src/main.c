@@ -2,9 +2,6 @@
 #include <windows.h>
 #include "../asparagus/asparagus.c"
 
-int update(float delta);
-int start();
-
 ASP_Entity player;
 float p_mspeed = 4;
 float p_rspeed = 2.0f;
@@ -24,14 +21,7 @@ ASP_Sprite dog;
 #define IMG_PATH1 "../data/goblin.png"
 #define IMG_PATH2 "../data/dog.png"
 
-int main(int argc, char *argv[])
-{
-	ASP_init(&update, &start);
-	getchar();
-	return 0;
-}
-
-int start()
+void start()
 {
 	//Player
 	player = ASP_EntityC();
@@ -50,18 +40,19 @@ int start()
 	pyramid1.position = ASP_FVector3C(2, 1, 0);
 
 	//Settings
-	ASP_Mouseaim = 1;
+	state.grabMouse = 1;
 
 	//Sprites
 	goblin = ASP_LoadSprite(IMG_PATH1);
 	dog = ASP_LoadSprite(IMG_PATH2);
 
-	return 0;
+	return;
 }
 
-int update(float deltatime)
+void update()
 {
-	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, ASP_FPS);
+	float deltatime = window.deltatime;
+	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, window.fps);
 
 	iHorizontal = 0;
 	iVertical = 0;
@@ -106,21 +97,21 @@ int update(float deltatime)
 
 	if (ASPKP_ESC == 1)
 	{
-		ASP_Mouseaim = !(ASP_Mouseaim == 1);
-		if (ASP_Mouseaim == 1)
+		state.grabMouse = !(state.grabMouse == 1);
+		if (state.grabMouse == 1)
 		{
-			SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+			SDL_SetWindowFullscreen(window.handle, SDL_WINDOW_FULLSCREEN);
 		}
 		else
 		{
-			SDL_SetWindowFullscreen(window, 0);
+			SDL_SetWindowFullscreen(window.handle, 0);
 		}
 	}
 
-	if (ASP_Mouseaim == 1)
+	if (state.grabMouse == 1)
 	{
-		player.rotation.z += ASPML_DX * deltatime;
-		player.rotation.x += ASPML_DY * deltatime;
+		player.rotation.z += window.mouse.delta.x * deltatime;
+		player.rotation.x += window.mouse.delta.y * deltatime;
 	}
 
 	if (ASPK_Up == 1 && ASPK_SHIFT != 1)
@@ -192,7 +183,7 @@ int update(float deltatime)
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glUniform3f(uniColor, (sinf(ASP_Runtime * 4.0f) + 1.0f) / 2.0f, (cosf(ASP_Runtime * 4.0f) + 1.0f) / 2.0f, 1.0f);
+	glUniform3f(uniColor, (sinf(window.totalSeconds * 4.0f) + 1.0f) / 2.0f, (cosf(window.totalSeconds * 4.0f) + 1.0f) / 2.0f, 1.0f);
 
 	float *mm = ASP_Mat4f_GetModelMatrix(box1);
 	float *vm = ASP_Mat4f_GetViewMatrix(player);
@@ -226,7 +217,7 @@ int update(float deltatime)
 
 	if (ASPMP_M1)
 	{
-		ASP_Mat4f_Print(vm);
+		ASP_Mat4f_Print(mm);
 	}
 
 	vm = view[0];
@@ -241,5 +232,20 @@ int update(float deltatime)
 	//free(vm);
 	//free(pm);
 
+	return;
+}
+
+void tick()
+{
+}
+
+void destroy()
+{
+}
+
+int main(int argc, char *argv[])
+{
+	ASP_init(&start, &update, &tick, &destroy);
+	getchar();
 	return 0;
 }

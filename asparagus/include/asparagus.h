@@ -1,24 +1,19 @@
 /* THE ASPARAGUS ENGINE BY TAGE ÅKERSTRÖM */
 /* Project started : 15/4/2021 */
 
-#include <stdio.h>
-#include <time.h>
-#include <math.h>
-#include <string.h>
+#ifndef ASPARAGUS_H
+#define ASPARAGUS_H
 
-#include <SDL2/SDL.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <cglm/call.h>
-#include "structs.c"
-#include "aspgeneric.c"
-#include "aspkeys.c"
+#define ASP_AXIS_X 0
+#define ASP_AXIS_Y 1
+#define ASP_AXIS_Z 2
+#define ASP_TRUE 1
+#define ASP_FALSE 0
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h";
+#include "util.h"
 
 /* Initiate asparagus with callback pointers */
-int ASP_init(int (*update)(float), int (*start)());
+int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP_CALLBACK destroy);
 
 /* Load asparagus shader from ./shader folder */
 const char *ASP_LoadShader(char *filename);
@@ -26,11 +21,8 @@ const char *ASP_LoadShader(char *filename);
 /* Compile glsl shader */
 GLuint ASP_CompileShader(GLuint shader, char *code);
 
-/* Hard sleep for x milli secs */
-int ASP_sleep(int m_secs);
-
 /* Render to window */
-int ASP_Render(SDL_Window *window);
+int ASP_Render();
 
 /* Asparagus internal event handler */
 int ASP_EventHandler();
@@ -64,3 +56,5 @@ ASP_Entity ASP_GenerateBoxEntity();
 
 /* Generates a pyramid :O */
 ASP_Entity ASP_GeneratePyramidEntity();
+
+#endif
