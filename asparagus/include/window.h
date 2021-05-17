@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef ASP_WINDOW_H
+#define ASP_WINDOW_H
 #define u64 uint64_t
 
 #include <SDL2/SDL.h>

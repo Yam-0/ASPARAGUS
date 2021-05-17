@@ -28,6 +28,12 @@ int ASP_CreateWindow(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK ti
 		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
 		return -1;
 	}
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GLContext mainContext = SDL_GL_CreateContext(window.handle);
+	gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 }
 
 void ASP_HandleCursor()

@@ -10,7 +10,10 @@
 #define ASP_TRUE 1
 #define ASP_FALSE 0
 
+#include "../camera.c"
 #include "util.h"
+#include "../window.c"
+#include "../shader.c"
 
 /* Initiate asparagus with callback pointers */
 int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP_CALLBACK destroy);

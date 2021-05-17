@@ -1,5 +1,4 @@
 #include "include/asparagus.h"
-#include "window.c"
 
 int DISPLAY_WIDTH;
 int DISPLAY_HEIGHT;
@@ -9,8 +8,7 @@ int ASP_MOUSEFOCUSED;
 int ASP_FOCUSED;
 
 float PI = 3.141592f;
-
-GLint uniColor, projectionMatrix, viewMatrix, modelMatrix;
+struct ASP_Camera camera;
 
 int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP_CALLBACK destroy)
 {
@@ -23,57 +21,20 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 	float deltatime = 0;
 	int msec = 0;
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GLContext mainContext = SDL_GL_CreateContext(window.handle);
-	gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
-
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
-
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	/* SHADERS */
-	char *vs1, *vs2, *fs1;
+	state.shader = ASP_CreateShader("../data/shaders/shader.vert", "../data/shaders/shader.frag", 0, NULL);
+	ASP_BindShader(state.shader);
 
-	//vs1 = ASP_LoadShader("../asparagus/shaders/vs.glsl");
-	//GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//ASP_CompileShader(vertexShader, vs1);
-	//free(vs1);
-
-	vs2 = ASP_LoadShader("../asparagus/shaders/project.vert");
-	GLuint projectVS = glCreateShader(GL_VERTEX_SHADER);
-	ASP_CompileShader(projectVS, vs2);
-	//free(vs2);
-
-	fs1 = ASP_LoadShader("../asparagus/shaders/fs.glsl");
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	ASP_CompileShader(fragmentShader, fs1);
-	//free(fs1);
-
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, projectVS);
-	glAttachShader(shaderProgram, fragmentShader);
-
-	glBindFragDataLocation(shaderProgram, 0, "outColor");
-	glLinkProgram(shaderProgram);
-	glUseProgram(shaderProgram);
-
-	GLint vertexPosition = glGetAttribLocation(shaderProgram, "position");
-	glVertexAttribPointer(vertexPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-	glEnableVertexAttribArray(vertexPosition);
-
-	uniColor = glGetUniformLocation(shaderProgram, "uniColor");
-
-	modelMatrix = glGetUniformLocation(shaderProgram, "m");
-	viewMatrix = glGetUniformLocation(shaderProgram, "v");
-	projectionMatrix = glGetUniformLocation(shaderProgram, "p");
+	//Camera
+	camera = ASP_CreateCamera(PI / 2, NULL);
 
 	//Start callback
 	window.start();
@@ -89,6 +50,7 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		//Update callback
 		window.update();
 
+		ASP_UpdateCamera(&camera);
 		ASP_Render();
 
 		//Frame time & deltatime
@@ -100,9 +62,8 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		window.totalSeconds += deltatime;
 	}
 
-	glDeleteProgram(shaderProgram);
-	glDeleteShader(fragmentShader);
-	glDeleteShader(projectVS);
+	ASP_DestroyShader(state.shader);
+
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
 
@@ -113,77 +74,6 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 	return 0;
 }
 
-const char *ASP_LoadShader(char *filename)
-{
-	FILE *sfh = fopen(filename, "r");
-	if (sfh == NULL)
-	{
-		printf("Could not read file: %s\n", filename);
-		ferror("error");
-		fclose(sfh);
-		return NULL;
-	}
-
-	printf("Read file: %s\n", filename);
-
-	int nlc = 0;
-	char c;
-	for (c = getc(sfh); c != EOF; c = getc(sfh))
-		if (c == '\n')
-			nlc++;
-
-	rewind(sfh);
-	long int size = 0;
-	fseek(sfh, -nlc, SEEK_END);
-	size = ftell(sfh);
-	rewind(sfh);
-
-	char *shader = (char *)malloc(size);
-	if (!shader)
-	{
-		printf("Memory error in ASP_LoadShader.\n");
-		fclose(sfh);
-		return NULL;
-	}
-
-	size_t readSize = fread(shader, 1, size, sfh);
-	readSize = (readSize >= 0) ? readSize : 0;
-	shader[readSize] = '\0';
-	if (readSize != size)
-	{
-		printf("Read error in ASP_LoadShader.\n");
-		printf("Read size %zu, malloc size %i.\n", readSize, size);
-		fclose(sfh);
-		return NULL;
-	}
-
-	printf("\nLoaded Shader \"%s\":\n%s\nEND\n", filename, shader);
-	fclose(sfh);
-
-	return shader;
-}
-
-GLuint ASP_CompileShader(GLuint shader, char *code)
-{
-	glShaderSource(shader, 1, &code, NULL);
-	glCompileShader(shader);
-
-	GLint status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-
-	if (status == GL_TRUE)
-	{
-		printf("Compiled shader!\n");
-		return shader;
-	}
-	else
-	{
-		printf("Failed to compile shader!\n");
-		char buffer[512];
-		glGetShaderInfoLog(shader, 512, NULL, buffer);
-		return shader;
-	}
-}
 int ASP_EventHandler()
 {
 	ASP_ResetKeyStates();

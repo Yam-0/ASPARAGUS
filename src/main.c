@@ -27,7 +27,11 @@ void start()
 	player = ASP_EntityC();
 	player.position.x = 0;
 	player.position.y = 0;
-	player.rotation.z = PI;
+	player.position.z = 0;
+	player.rotation.x = 0;
+	player.rotation.y = 0;
+	player.rotation.z = 0;
+	ASP_AttachCamera(&camera, &player);
 
 	//World objects
 	box1 = ASP_GenerateBoxEntity();
@@ -157,6 +161,7 @@ void update()
 		box1.scale.y -= 5 * deltatime;
 	}
 
+	//Shoot
 	if (ASPMP_M1 == 1)
 	{
 		//ASPMP_M1 = 0;
@@ -186,51 +191,21 @@ void update()
 	glUniform3f(uniColor, (sinf(window.totalSeconds * 4.0f) + 1.0f) / 2.0f, (cosf(window.totalSeconds * 4.0f) + 1.0f) / 2.0f, 1.0f);
 
 	float *mm = ASP_Mat4f_GetModelMatrix(box1);
-	float *vm = ASP_Mat4f_GetViewMatrix(player);
-	float *pm = ASP_Mat4f_GetProjectionMatrix(PI / 2);
-
-	mat4 view, projection;
-
-	float aspect = 16 / 9;
-	float znear = 0.01f;
-	float zfar = 1000.0f;
-	float fov = PI / 2;
-
-	float pdir[3] = {cosf(player.rotation.x) * sinf(player.rotation.z),
-					 sinf(player.rotation.x),
-					 cosf(player.rotation.x) * cosf(player.rotation.z)};
-
-	glm_normalize(pdir);
-
-	float cpright[3];
-	float cpup[3];
-	glm_vec3_cross((vec3){0.0f, 1.0f, 0.0f}, pdir, cpright);
-	glm_vec3_cross(pdir, cpright, cpup);
-	glm_mat4_identity(view);
-	glm_mat4_identity(projection);
-
-	float pp[3] = {player.position.x, player.position.z, player.position.y};
-	float wpp[3];
-	glm_vec3_add(pp, pdir, wpp);
-	glm_lookat(pp, wpp, cpup, view);
-	glm_perspective(fov, aspect, znear, zfar, projection);
+	ASP_Mat4f_uniform(state.shader, "m", mm);
 
 	if (ASPMP_M1)
 	{
-		ASP_Mat4f_Print(mm);
+		printf("PLAYER: pos(%f, %f, %f) ROT: (%f, %f, %f)\n",
+			   player.position.x,
+			   player.position.y,
+			   player.position.z,
+
+			   player.rotation.x,
+			   player.rotation.y,
+			   player.rotation.z);
 	}
 
-	vm = view[0];
-	pm = projection[0];
-
-	glMatrixMode(GL_MODELVIEW);
-	glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, mm);
-	glUniformMatrix4fv(viewMatrix, 1, GL_FALSE, vm);
-	glUniformMatrix4fv(projectionMatrix, 1, GL_FALSE, pm);
-
-	//free(mm);
-	//free(vm);
-	//free(pm);
+	free(mm);
 
 	return;
 }

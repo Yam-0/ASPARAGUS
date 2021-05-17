@@ -1,6 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "asparagus.h"
+
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -16,6 +18,8 @@
 #include "../aspgeneric.c"
 #include "../aspkeys.c"
 
+#include "camera.h"
+#include "shader.h"
 #include "state.h"
 #include "window.h"
 #include "vec.h"

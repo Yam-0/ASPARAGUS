@@ -1,11 +1,13 @@
-#ifndef STATE_H
-#define STATE_H
+#ifndef ASP_STATE_H
+#define ASP_STATE_H
 
 #include "util.h"
+#include "shader.h"
 
 struct ASP_State
 {
 	struct ASP_Window *window;
+	struct ASP_Shader shader;
 
 	bool running, wireframe;
 	bool grabMouse;
