@@ -142,7 +142,6 @@ void ASP_BindShader(struct ASP_Shader shader)
 }
 void ASP_Mat4f_uniform(struct ASP_Shader shader, char *name, mat4 m)
 {
-
 	glMatrixMode(GL_MODELVIEW);
 	GLint location = glGetUniformLocation(shader.shader_handle, name);
 	glUniformMatrix4fv(location, 1, GL_FALSE, m[0]);
@@ -151,13 +150,4 @@ void ASP_Mat4f_camera(struct ASP_Shader shader, struct ASP_Camera *camera)
 {
 	ASP_Mat4f_uniform(shader, "p", camera->proj);
 	ASP_Mat4f_uniform(shader, "v", camera->view);
-
-	if (ASPMP_M1)
-	{
-		printf("VIEW MATRIX:\n");
-		ASP_Mat4f_Print(camera->view[0]);
-		printf("PROJ MATRIX:\n");
-		ASP_Mat4f_Print(camera->proj[0]);
-		printf("\n");
-	}
 }

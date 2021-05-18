@@ -14,7 +14,7 @@ struct ASP_Camera ASP_CreateCamera(float fov, ASP_Entity *parentObject)
 	camera.z_near = 0.01f;
 	camera.z_far = 1000.0f;
 
-	//ASP_UpdateCamera(&camera);
+	ASP_UpdateCamera(&camera);
 	return camera;
 }
 
@@ -51,18 +51,4 @@ void ASP_UpdateCamera(struct ASP_Camera *camera)
 	glm_vec3_add(pp, pdir, wpp);
 	glm_lookat(pp, wpp, cpup, camera->view);
 	glm_perspective(camera->fov, camera->aspect, camera->z_near, camera->z_far, camera->proj);
-
-	if (ASPMP_M1)
-	{
-		printf("\n");
-		printf("position: (%f, %f, %f)\n", camera->parentObject->position.x, camera->parentObject->position.y, camera->parentObject->position.z);
-		printf("rotation: (%f, %f, %f)\n", camera->parentObject->rotation.x, camera->parentObject->rotation.y, camera->parentObject->rotation.z);
-		printf("pdir: (%f, %f, %f)\n", pdir[0], pdir[1], pdir[2]);
-		printf("cpright: (%f, %f, %f)\n", cpright[0], cpright[1], cpright[2]);
-		printf("fov: %f, aspect: %f\n", camera->fov, camera->aspect);
-		printf("z_near: %f, z_far: %f\n", camera->z_near, camera->z_far);
-		printf("\n");
-	}
-
-	ASP_Mat4f_camera(state.shader, camera);
 }

@@ -39,6 +39,9 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 
 		ASP_EventHandler();
 
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
 		//Update callback
 		window.update();
 
@@ -159,8 +162,6 @@ int ASP_EventHandler()
 
 int ASP_Render()
 {
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	SDL_GL_SwapWindow(window.handle);
 	return 0;

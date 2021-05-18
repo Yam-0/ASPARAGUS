@@ -9,14 +9,11 @@ int iHorizontal = 0;
 int iVertical = 0;
 
 ASP_Entity box1;
-ASP_Entity box2;
-ASP_Entity bullet;
-ASP_Entity pyramid1;
+struct ASP_Mesh box1mesh;
 
 ASP_FVector3 bulletspeed;
 
 ASP_Sprite goblin;
-ASP_Sprite dog;
 
 #define IMG_PATH1 "../data/goblin.png"
 
@@ -36,6 +33,8 @@ void start()
 
 	//World objects
 	box1 = ASP_GenerateBoxEntity();
+	ASP_Mesh_Init(&box1mesh, 4, 4, 4);
+	ASP_Mesh_Attach(&box1, &box1mesh);
 
 	//Settings
 	state.grabMouse = 1;
@@ -174,33 +173,7 @@ void update()
 	bullet.position.z += bulletspeed.z;
 	*/
 
-	/* LOCAL VERTEX POSITIONS */
-	float vertices[] = {
-		-0.5f, 0.0, -0.5f,
-		0.5f, 0.5f, -0.5f,
-		0.0f, 0.0f, 0.5f};
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	float *mm = ASP_Mat4f_GetModelMatrix(box1);
-	ASP_Mat4f_uniform(state.shader, "m", mm);
-
-	if (ASPMP_M1)
-	{
-		printf("PLAYER: pos(%f, %f, %f) ROT: (%f, %f, %f)\n",
-			   player.position.x,
-			   player.position.y,
-			   player.position.z,
-
-			   player.rotation.x,
-			   player.rotation.y,
-			   player.rotation.z);
-
-		printf("MODEL MATRIX:\n");
-		ASP_Mat4f_Print(mm);
-	}
-
-	//free(mm);
+	ASP_Mesh_Render(&box1mesh, &camera);
 
 	return;
 }

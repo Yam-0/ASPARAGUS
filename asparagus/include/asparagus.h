@@ -10,6 +10,7 @@
 #define ASP_TRUE 1
 #define ASP_FALSE 0
 
+#include "../mesh.c"
 #include "../camera.c"
 #include "util.h"
 #include "../window.c"

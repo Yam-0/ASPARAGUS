@@ -18,6 +18,9 @@
 #include "../aspgeneric.c"
 #include "../aspkeys.c"
 
+#include "mesh.h"
+#include "vao.h"
+#include "vbo.h"
 #include "camera.h"
 #include "shader.h"
 #include "state.h"
