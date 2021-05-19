@@ -39,6 +39,7 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 	mat4 mm;
 	glm_mat4_identity(mm);
 
+	/*
 	if (object->attached)
 	{
 		glm_translate(mm, ((ivec3){
@@ -46,6 +47,7 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 							  object->parentObject->position.y,
 							  object->parentObject->position.z}));
 	}
+	*/
 
 	ASP_Mat4f_uniform(state.shader, "m", mm);
 
@@ -56,13 +58,12 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 
 	//TEMP SOLUTION
 	//-------------------------------------------------------------
-	//-------------------------------------------------------------
-
 	float vertices[] = {
 		-0.5f, -0.5f, 0.0f, // left
 		0.5f, -0.5f, 0.0f,	// right
 		0.0f, 0.5f, 0.0f	// top
 	};
+
 	glGenVertexArrays(1, &object->vao.object_handle);
 	glGenBuffers(1, &object->vbo.object_handle);
 	glBindVertexArray(object->vao.object_handle);
@@ -75,7 +76,6 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 
 	glUseProgram(state.shader.shader_handle);
 	glBindVertexArray(object->vao.object_handle);
-	//-------------------------------------------------------------
 	//-------------------------------------------------------------
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);

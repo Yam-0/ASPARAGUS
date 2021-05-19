@@ -17,7 +17,7 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 	float deltatime = 0;
 	int msec = 0;
 
-	/* SHADERS */
+	/* SHADERS - LOAD, COMPILE, LINK and BIND */
 	state.shader = ASP_CreateShader(
 		"../data/shaders/shader.vert",
 		"../data/shaders/shader.frag", 1,
@@ -28,11 +28,7 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		});
 	ASP_BindShader(state.shader);
 
-	//--------------------------------------------------------------------------------------
-
-	//--------------------------------------------------------------------------------------
-
-	//Camera
+	//Public camera, unattached.
 	camera = ASP_CreateCamera(PI / 2, NULL);
 
 	//Start callback
@@ -104,6 +100,8 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		}
 		*/
 	}
+
+	window.destroy();
 
 	ASP_DestroyShader(state.shader);
 
