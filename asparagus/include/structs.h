@@ -31,11 +31,7 @@ typedef struct
 	ASP_FVector3 position;
 	ASP_FVector3 rotation;
 	ASP_FVector3 scale;
-	ASP_FVector3 vertices[128];
-	int vertexcount;
-	int faces[128][3];
-	int facecount;
-	ASP_Color faceColor[128];
+	struct ASP_Mesh *mesh;
 	int type;
 } ASP_Entity;
 

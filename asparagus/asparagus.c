@@ -327,89 +327,10 @@ ASP_IVector2 ASP_Project(ASP_FVector3 p, ASP_Entity camera, float fov, float dep
 	return ASP_IVector2C(ssx, ssy);
 }
 
-int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera)
+int ASP_DrawEntity(ASP_Entity entity)
 {
-	ASP_FVector3 p;
-	ASP_Color COLOR = ASP_ColorC(255, 255, 255, 255);
-	float p_fov = PI / 2;
-	float depth = PI * 168;
-
-	//Loop over faces
-	for (int i = 0; i < entity.facecount; i++)
-	{
-		int face[3];
-		face[0] = entity.faces[i][0];
-		face[1] = entity.faces[i][1];
-		face[2] = entity.faces[i][2];
-
-		ASP_IVector2 tris[3];
-
-		//Face vertex loop
-		for (int j = 0; j < 3; j++)
-		{
-			p = entity.vertices[face[j]];
-
-			/* ORIGIN RELATIVE SCALING */
-			p.x *= entity.scale.x;
-			p.y *= entity.scale.y;
-			p.z *= entity.scale.z;
-
-			/* ORIGIN RELATIVE ROTATION */
-			p = ASP_RotateVector(-entity.rotation.x, p, 0);
-			p = ASP_RotateVector(-entity.rotation.z, p, 2);
-			p = ASP_RotateVector(-entity.rotation.y, p, 1);
-
-			/* MOVING TO CAMERA RELATIVE POSITION */
-			p.x = p.x - camera.position.x + entity.position.x;
-			p.y = p.y - camera.position.y + entity.position.y;
-			p.z = p.z - camera.position.z + entity.position.z;
-
-			/* AXIS ROTATION AROUND CAMERA */
-			p = ASP_RotateVector(camera.rotation.z, p, 2);
-			p = ASP_RotateVector(camera.rotation.x, p, 0);
-			p = ASP_RotateVector(camera.rotation.y, p, 1);
-
-			if (p.y > 0)
-			{
-				tris[j] = ASP_Project(p, camera, p_fov, depth);
-			}
-			else
-			{
-				tris[j] = ASP_IVector2C(0, 0);
-			}
-		}
-
-		ASP_DrawLine(COLOR, tris[0], tris[1]);
-		ASP_DrawLine(COLOR, tris[1], tris[2]);
-		ASP_DrawLine(COLOR, tris[2], tris[0]);
-
-		ASP_IVector2 min, max = ASP_IVector2C(tris[0].x, tris[0].y);
-		int vx, vy;
-		for (int c = 0; c < 3; c++)
-		{
-			int vx = tris[c].x;
-			int vy = tris[c].y;
-			vx = (vx > SCREEN_WIDTH) ? SCREEN_WIDTH : vx;
-			vy = (vy > SCREEN_HEIGHT) ? SCREEN_HEIGHT : vy;
-			vx = (vx < 0) ? 0 : vx;
-			vy = (vy < 0) ? 0 : vy;
-			min.x = (vx < min.x) ? vx : min.x;
-			min.y = (vy < min.y) ? vy : min.y;
-			max.x = (vx > max.x) ? vx : max.x;
-			max.y = (vy > max.y) ? vy : max.y;
-		}
-
-		for (int x = 0; x < max.x - min.x; x++)
-		{
-			for (int y = 0; y < max.y - min.y; y++)
-			{
-				//if (ASP_InTriangle(ASP_IVector2C(min.x + x, min.y + y), tris[0], tris[1], tris[2]) == 1)
-				//{
-				//	ASP_DrawPixel(renderer, entity.faceColor[i], ASP_IVector2C(min.x + x, min.y + y));
-				//}
-			}
-		}
-	}
+	if (entity.mesh != NULL)
+		ASP_Mesh_Render(entity.mesh, &camera);
 
 	return 0;
 }
@@ -423,47 +344,57 @@ ASP_Entity ASP_GenerateBoxEntity()
 	box.rotation = ASP_FVector3C(0, 0, 0);
 	box.scale = ASP_FVector3C(1, 1, 1);
 
-	ASP_FVector3 vertices[8] = {
-		ASP_FVector3C(0.5f, 0.5f, -0.5f),
-		ASP_FVector3C(-0.5f, 0.5f, -0.5f),
-		ASP_FVector3C(-0.5f, -0.5f, -0.5f),
-		ASP_FVector3C(0.5f, -0.5f, -0.5f),
-		ASP_FVector3C(0.5f, 0.5f, 0.5f),
-		ASP_FVector3C(-0.5f, 0.5f, 0.5f),
-		ASP_FVector3C(-0.5f, -0.5f, 0.5f),
-		ASP_FVector3C(0.5f, -0.5f, 0.5f)};
+	struct ASP_MeshBuffer vertices, faces, indices;
 
-	for (int i = 0; i < 8; i++)
-	{
-		box.vertices[i] = vertices[i];
-	}
+	vertices.capacity = 3 * 8 * sizeof(int);
+	faces.capacity = 3 * 12 * sizeof(int);
+	indices.capacity = 1 * sizeof(int);
 
-	box.vertexcount = 8;
+	vertices.data = malloc(vertices.capacity);
+	faces.data = malloc(faces.capacity);
+	indices.data = malloc(indices.capacity);
 
-	int faces[12][3] =
-		{0, 1, 3,
-		 1, 2, 3,
-		 0, 1, 4,
-		 1, 4, 5,
-		 1, 2, 5,
-		 2, 6, 5,
-		 3, 2, 6,
-		 3, 7, 6,
-		 0, 3, 7,
-		 0, 4, 7,
-		 4, 5, 6,
-		 4, 6, 7};
+	vertices.count = 8;
+	faces.count = 12;
+	indices.count = 1;
 
-	for (int i = 0; i < 12; i++)
-	{
-		box.faces[i][0] = faces[i][0];
-		box.faces[i][1] = faces[i][1];
-		box.faces[i][2] = faces[i][2];
+	vertices.index = sizeof(float);
+	faces.index = sizeof(int);
+	indices.index = sizeof(int);
 
-		box.faceColor[i] = ASP_ColorC(rand() % 255, 255, 255, 255);
-	}
+	float _vertices[3 * 8] = {
+		0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f};
 
-	box.facecount = 12;
+	int _faces[3 * 12] = {0, 1, 3,
+						  1, 2, 3,
+						  0, 1, 4,
+						  1, 4, 5,
+						  1, 2, 5,
+						  2, 6, 5,
+						  3, 2, 6,
+						  3, 7, 6,
+						  0, 3, 7,
+						  0, 4, 7,
+						  4, 5, 6,
+						  4, 6, 7};
+
+	int _indices[1] = {1};
+
+	vertices.data = _vertices;
+	faces.data = _faces;
+	indices.data = _indices;
+
+	box.mesh->vertices = vertices;
+	box.mesh->faces = faces;
+	box.mesh->indices = indices;
+
 	box.type = 1;
 
 	return box;
@@ -472,45 +403,6 @@ ASP_Entity ASP_GenerateBoxEntity()
 ASP_Entity ASP_GeneratePyramidEntity()
 {
 	ASP_Entity pyramid;
-	strcpy(pyramid.name, "BOX");
-	pyramid.id = 0;
-	pyramid.position = ASP_FVector3C(0, 0, 0);
-	pyramid.rotation = ASP_FVector3C(0, 0, 0);
-	pyramid.scale = ASP_FVector3C(1, 1, 1);
-
-	ASP_FVector3 vertices[5] = {
-		ASP_FVector3C(0.5f, 0.5f, -0.5f),
-		ASP_FVector3C(-0.5f, 0.5f, -0.5f),
-		ASP_FVector3C(-0.5f, -0.5f, -0.5f),
-		ASP_FVector3C(0.5f, -0.5f, -0.5f),
-		ASP_FVector3C(0.0f, 0.0f, 0.7f)};
-
-	for (int i = 0; i < 5; i++)
-	{
-		pyramid.vertices[i] = vertices[i];
-	}
-
-	pyramid.vertexcount = 5;
-
-	int faces[6][3] = {
-		{0, 1, 3},
-		{1, 2, 3},
-		{0, 1, 4},
-		{1, 2, 4},
-		{2, 3, 4},
-		{3, 0, 4}};
-
-	for (int i = 0; i < 6; i++)
-	{
-		pyramid.faces[i][0] = faces[i][0];
-		pyramid.faces[i][1] = faces[i][1];
-		pyramid.faces[i][2] = faces[i][2];
-
-		pyramid.faceColor[i] = ASP_ColorC(rand() % 255, 255, 255, 255);
-	}
-
-	pyramid.facecount = 6;
-	pyramid.type = 1;
 
 	return pyramid;
 }

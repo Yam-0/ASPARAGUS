@@ -53,7 +53,7 @@ int ASP_DrawRect(ASP_Color color, ASP_IVector2 position, ASP_IVector2 scale);
 int ASP_DrawFill(ASP_Color color);
 
 /* Draws an ASP entity to the render surface */
-int ASP_DrawEntity(ASP_Entity entity, ASP_Entity camera);
+int ASP_DrawEntity(ASP_Entity entity);
 
 /* Generates a box :P */
 ASP_Entity ASP_GenerateBoxEntity();

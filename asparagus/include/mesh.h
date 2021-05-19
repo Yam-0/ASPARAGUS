@@ -25,14 +25,13 @@ struct ASP_Mesh
 	ASP_Entity *parentObject;
 	bool attached;
 
-	struct ASP_MeshBuffer data, faces, indices;
-	size_t vertex_count;
+	struct ASP_MeshBuffer vertices, faces, indices;
 
 	struct ASP_VAO vao;
 	struct ASP_VBO vbo, ibo;
 };
 
-void ASP_Mesh_Init(struct ASP_Mesh *object, size_t db_size, size_t ib_size, size_t if_size);
+void ASP_Mesh_Init(struct ASP_Mesh *object);
 void ASP_Mesh_Attach(struct ASP_Mesh *object, ASP_Entity *entity);
 void ASP_Mesh_Destroy(struct ASP_Mesh *object);
 void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera);
