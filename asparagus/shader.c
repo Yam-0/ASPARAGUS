@@ -96,10 +96,8 @@ struct ASP_Shader ASP_CreateShader(char *filepath_vs, char *filepath_fs, size_t 
 
 	for (size_t i = 0; i < n; i++)
 	{
-		//glBindAttribLocation(shader.shader_handle, attr[i].index, attr[i].name);
+		glBindAttribLocation(shader.shader_handle, attr[i].index, attr[i].name);
 	}
-
-	//glBindFragDataLocation(shader.shader_handle, 0, "outColor");
 
 	glLinkProgram(shader.shader_handle);
 

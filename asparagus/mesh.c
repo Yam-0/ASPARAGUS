@@ -2,6 +2,7 @@
 
 void ASP_Mesh_Init(struct ASP_Mesh *object)
 {
+	object->parentObject = NULL;
 	object->attached = false;
 
 	//memset(object, 0, sizeof(struct ASP_Mesh));
@@ -16,11 +17,12 @@ void ASP_Mesh_Init(struct ASP_Mesh *object)
 	//&object->vertices, &object->indices, &object->faces};
 }
 
-void ASP_Mesh_Attach(struct ASP_Mesh *object, ASP_Entity *entity)
+void ASP_Mesh_Attach(struct ASP_Mesh *mesh, ASP_Entity *entity)
 {
-	entity->mesh = object;
-	object->parentObject = entity;
-	object->attached = true;
+	entity->mesh = mesh;
+	mesh->parentObject = entity;
+	mesh->attached = true;
+	printf("Attached to entity: %s", entity->name);
 }
 
 void ASP_Mesh_Destroy(struct ASP_Mesh *object)
@@ -39,22 +41,29 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 	mat4 mm;
 	glm_mat4_identity(mm);
 
-	/*
 	if (object->attached)
 	{
-		glm_translate(mm, ((ivec3){
+
+		glm_translate(mm, ((vec3){
 							  object->parentObject->position.x,
-							  object->parentObject->position.y,
-							  object->parentObject->position.z}));
+							  object->parentObject->position.z,
+							  object->parentObject->position.y}));
+
+		glm_rotate(mm, object->parentObject->rotation.x, ((vec3){1.0f, 0.0f, 0.0f}));
+		glm_rotate(mm, object->parentObject->rotation.z, ((vec3){0.0f, 1.0f, 0.0f}));
+		glm_rotate(mm, object->parentObject->rotation.y, ((vec3){0.0f, 0.0f, 1.0f}));
+
+		glm_scale(mm, ((vec3){
+						  object->parentObject->scale.x,
+						  object->parentObject->scale.z,
+						  object->parentObject->scale.y}));
 	}
-	*/
+	if (ASPMP_M1)
+		ASP_Mat4f_Print(mm[0]);
+	ASP_Mat4f_uniform(state.shader, "m", mm[0]);
 
-	ASP_Mat4f_uniform(state.shader, "m", mm);
-
-	//const size_t vertex_size = object->vertices.capacity;
-	//ASP_VAO_Attribute(object->vao, object->vbo, 0, 3, vertex_size, 0 * sizeof(float));
-	//ASP_VAO_Attribute(object->vao, object->vbo, 1, 2, vertex_size, 3 * sizeof(float));
-	//ASP_VAO_Attribute(object->vao, object->vbo, 2, 3, vertex_size, 5 * sizeof(float));
+	size_t stride = 3 * sizeof(float);
+	ASP_VAO_Attribute(object->vao, object->vbo, 0, 3, GL_FLOAT, stride, 0 * sizeof(float));
 
 	//TEMP SOLUTION
 	//-------------------------------------------------------------
@@ -69,8 +78,6 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 		1, 2, 3	 // second triangle
 	};
 
-	//ASP_VBO_Buffer(object, &vertices, 0, 0);
-
 	glBindVertexArray(object->vao.object_handle);
 
 	ASP_VBO_Bind(object->vbo);
@@ -79,18 +86,11 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 	ASP_VBO_Bind(object->ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-	glEnableVertexAttribArray(0);
-
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
 	//-------------------------------------------------------------
 
-	glUseProgram(state.shader.shader_handle);
-	glBindVertexArray(object->vao.object_handle);
+	ASP_VAO_Bind(object->vao);
+	ASP_VBO_Bind(object->ibo);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
 }
 
 void ASP_Mesh_Update(struct ASP_Mesh *object)

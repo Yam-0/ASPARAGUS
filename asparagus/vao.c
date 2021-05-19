@@ -18,10 +18,12 @@ void ASP_VAO_Bind(struct ASP_VAO object)
 }
 
 void ASP_VAO_Attribute(
-	struct ASP_VAO vao_object, struct ASP_VBO vbo_object,
+	struct ASP_VAO vao_object, struct ASP_VBO vbo_object, GLuint i,
 	GLuint size, GLenum type, GLsizei stride, size_t offset)
 {
 	ASP_VAO_Bind(vao_object);
 	ASP_VBO_Bind(vbo_object);
-	glVertexAttribPointer(index, size, type, GL_FALSE, stride, (void *)offset);
+
+	glVertexAttribPointer(i, size, type, GL_FALSE, stride, (void *)offset);
+	glEnableVertexAttribArray(i);
 }

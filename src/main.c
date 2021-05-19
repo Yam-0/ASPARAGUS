@@ -33,10 +33,11 @@ void start()
 	box1 = ASP_Entity_Create("BOX");
 	ASP_Mesh_Init(&box1mesh);
 	//ASP_Mesh_FillSquare(&box1mesh);
-	ASP_Mesh_Attach(&box1, &box1mesh);
+	ASP_Mesh_Attach(&box1mesh, &box1);
 
 	//Settings
-	state.grabMouse = 1;
+	state.grabMouse = ASP_TRUE;
+	state.wireframe = ASP_FALSE;
 
 	return;
 }
@@ -44,7 +45,7 @@ void start()
 void update()
 {
 	float deltatime = window.deltatime;
-	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, window.fps);
+	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, window.fps);
 
 	iHorizontal = 0;
 	iVertical = 0;
@@ -142,11 +143,11 @@ void update()
 
 	if (ASPK_E == 1)
 	{
-		box1.scale.y += 5 * deltatime;
+		box1.scale.z += 5 * deltatime;
 	}
 	if (ASPK_Q == 1)
 	{
-		box1.scale.y -= 5 * deltatime;
+		box1.scale.z -= 5 * deltatime;
 	}
 
 	/*

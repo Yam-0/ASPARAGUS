@@ -40,14 +40,14 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		clock_t before = clock();
 
 		ASP_EventHandler();
-
 		glClearColor(0.2f, 0.4f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glPolygonMode(GL_FRONT_AND_BACK, state.wireframe ? GL_LINE : GL_FILL);
 
 		//Update callback
 		window.update();
 
-		//ASP_UpdateCamera(&camera);
+		ASP_UpdateCamera(&camera);
 		ASP_Render();
 
 		//Frame time & deltatime
