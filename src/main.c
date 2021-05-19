@@ -33,9 +33,8 @@ void start()
 
 	//World objects
 	box1 = ASP_GenerateBoxEntity();
-	ASP_Mesh_Init(&box1mesh);
+	//ASP_Mesh_Init(&box1mesh);
 	ASP_Mesh_Attach(&box1, &box1mesh);
-	box1.mesh = &box1mesh;
 
 	//Settings
 	state.grabMouse = 1;

@@ -94,19 +94,17 @@ struct ASP_Shader ASP_CreateShader(char *filepath_vs, char *filepath_fs, size_t 
 	glAttachShader(shader.shader_handle, shader.vs_handle);
 	glAttachShader(shader.shader_handle, shader.fs_handle);
 
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	for (size_t i = 0; i < n; i++)
+	{
+		glBindAttribLocation(shader.shader_handle, attr[i].index, attr[i].name);
+	}
 
 	//GLint vertexPosition = glGetAttribLocation(state.shader.shader_handle, "position");
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-	glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+	//glEnableVertexAttribArray(0);
 
-	glBindFragDataLocation(shader.shader_handle, 0, "outColor");
+	//glBindFragDataLocation(shader.shader_handle, 0, "outColor");
+
 	glLinkProgram(shader.shader_handle);
 
 	//Check link status

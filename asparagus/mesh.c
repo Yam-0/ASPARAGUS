@@ -9,6 +9,9 @@ void ASP_Mesh_Init(struct ASP_Mesh *object)
 	object->vbo = ASP_VBO_Create(GL_ARRAY_BUFFER, GL_FALSE);
 	object->ibo = ASP_VBO_Create(GL_ELEMENT_ARRAY_BUFFER, GL_FALSE);
 
+	object->vertices.capacity = 0;
+	object->faces.capacity = 0;
+	object->indices.capacity = 0;
 	//struct ASP_MeshBuffer *buffers[3] = {
 	//&object->vertices, &object->indices, &object->faces};
 }

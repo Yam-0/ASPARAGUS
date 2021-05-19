@@ -350,9 +350,7 @@ ASP_Entity ASP_GenerateBoxEntity()
 	faces.capacity = 3 * 12 * sizeof(int);
 	indices.capacity = 1 * sizeof(int);
 
-	vertices.data = malloc(vertices.capacity);
-	faces.data = malloc(faces.capacity);
-	indices.data = malloc(indices.capacity);
+	ASP_Mesh_Init(&box.mesh);
 
 	vertices.count = 8;
 	faces.count = 12;
