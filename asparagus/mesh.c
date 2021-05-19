@@ -4,7 +4,7 @@ void ASP_Mesh_Init(struct ASP_Mesh *object)
 {
 	object->attached = false;
 
-	memset(object, 0, sizeof(struct ASP_Mesh));
+	//memset(object, 0, sizeof(struct ASP_Mesh));
 	object->vao = ASP_VAO_Create();
 	object->vbo = ASP_VBO_Create(GL_ARRAY_BUFFER, GL_FALSE);
 	object->ibo = ASP_VBO_Create(GL_ELEMENT_ARRAY_BUFFER, GL_FALSE);
@@ -49,16 +49,82 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 
 	ASP_Mat4f_uniform(state.shader, "m", mm);
 
-	const size_t vertex_size = object->vertices.capacity;
-	ASP_VAO_Attribute(object->vao, object->vbo, 0, 3, vertex_size, 0 * sizeof(float));
-	ASP_VAO_Attribute(object->vao, object->vbo, 1, 2, vertex_size, 3 * sizeof(float));
-	ASP_VAO_Attribute(object->vao, object->vbo, 2, 3, vertex_size, 5 * sizeof(float));
+	//const size_t vertex_size = object->vertices.capacity;
+	//ASP_VAO_Attribute(object->vao, object->vbo, 0, 3, vertex_size, 0 * sizeof(float));
+	//ASP_VAO_Attribute(object->vao, object->vbo, 1, 2, vertex_size, 3 * sizeof(float));
+	//ASP_VAO_Attribute(object->vao, object->vbo, 2, 3, vertex_size, 5 * sizeof(float));
+
+	//TEMP SOLUTION
+	//-------------------------------------------------------------
+	//-------------------------------------------------------------
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f};
+
+	glBindBuffer(GL_ARRAY_BUFFER, object->vbo.object_handle);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBindVertexArray(object->vao.object_handle);
+	//-------------------------------------------------------------
+	//-------------------------------------------------------------
 
 	ASP_VAO_Bind(object->vao);
 	ASP_VBO_Bind(object->ibo);
-	glDrawElements(GL_TRIANGLES, object->indices.count, GL_UNSIGNED_SHORT, NULL);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+	glEnableVertexAttribArray(0);
+	//glDrawElements(GL_TRIANGLES, object->indices.count, GL_UNSIGNED_SHORT, NULL);
 }
 
 void ASP_Mesh_Update(struct ASP_Mesh *object)
 {
+}
+
+void ASP_Mesh_FillSquare(struct ASP_Mesh *object)
+{
+	struct ASP_MeshBuffer vertices, faces, indices;
+
+	vertices.capacity = 3 * 8 * sizeof(int);
+	faces.capacity = 3 * 12 * sizeof(int);
+	indices.capacity = 1 * sizeof(int);
+
+	vertices.count = 8;
+	faces.count = 12;
+	indices.count = 1;
+
+	vertices.index = sizeof(float);
+	faces.index = sizeof(int);
+	indices.index = sizeof(int);
+
+	float _vertices[3 * 8] = {
+		0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f};
+
+	int _faces[3 * 12] = {0, 1, 3,
+						  1, 2, 3,
+						  0, 1, 4,
+						  1, 4, 5,
+						  1, 2, 5,
+						  2, 6, 5,
+						  3, 2, 6,
+						  3, 7, 6,
+						  0, 3, 7,
+						  0, 4, 7,
+						  4, 5, 6,
+						  4, 6, 7};
+
+	int _indices[1] = {1};
+
+	vertices.data = _vertices;
+	faces.data = _faces;
+	indices.data = _indices;
+
+	object->vertices = vertices;
+	object->faces = faces;
+	object->indices = indices;
 }

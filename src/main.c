@@ -13,8 +13,6 @@ struct ASP_Mesh box1mesh;
 
 ASP_FVector3 bulletspeed;
 
-ASP_Sprite goblin;
-
 #define IMG_PATH1 "../data/goblin.png"
 
 void start()
@@ -32,15 +30,14 @@ void start()
 	ASP_AttachCamera(&camera, &player);
 
 	//World objects
-	box1 = ASP_GenerateBoxEntity();
-	//ASP_Mesh_Init(&box1mesh);
+	box1 = ASP_Entity_Create("BOX");
+	ASP_Mesh_Init(&box1mesh);
+	//ASP_Mesh_FillSquare(&box1mesh);
 	ASP_Mesh_Attach(&box1, &box1mesh);
 
 	//Settings
 	state.grabMouse = 1;
 
-	//Sprites
-	goblin = ASP_LoadSprite(IMG_PATH1);
 	return;
 }
 
