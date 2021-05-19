@@ -59,27 +59,38 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 	//TEMP SOLUTION
 	//-------------------------------------------------------------
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f, // left
-		0.5f, -0.5f, 0.0f,	// right
-		0.0f, 0.5f, 0.0f	// top
+		0.5f, 0.5f, 0.0f,	// top right
+		0.5f, -0.5f, 0.0f,	// bottom right
+		-0.5f, -0.5f, 0.0f, // bottom left
+		-0.5f, 0.5f, 0.0f	// top left
+	};
+	unsigned int indices[] = {
+		0, 1, 3, // first triangle
+		1, 2, 3	 // second triangle
 	};
 
-	glGenVertexArrays(1, &object->vao.object_handle);
-	glGenBuffers(1, &object->vbo.object_handle);
+	//ASP_VBO_Buffer(object, &vertices, 0, 0);
+
 	glBindVertexArray(object->vao.object_handle);
-	glBindBuffer(GL_ARRAY_BUFFER, object->vbo.object_handle);
+
+	ASP_VBO_Bind(object->vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	ASP_VBO_Bind(object->ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	//-------------------------------------------------------------
 
 	glUseProgram(state.shader.shader_handle);
 	glBindVertexArray(object->vao.object_handle);
-	//-------------------------------------------------------------
-
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	//glDrawElements(GL_TRIANGLES, object->indices.count, GL_UNSIGNED_SHORT, NULL);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
 void ASP_Mesh_Update(struct ASP_Mesh *object)

@@ -27,7 +27,6 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 											 //{.index = 2, .name = "color"},
 		});
 	ASP_BindShader(state.shader);
-
 	//Public camera, unattached.
 	camera = ASP_CreateCamera(PI / 2, NULL);
 

@@ -5,6 +5,10 @@ struct ASP_VBO ASP_VBO_Create(GLint object_type, bool isDynamic)
 	struct ASP_VBO object;
 	object.object_type = object_type;
 	object.isDynamic = isDynamic;
+
+	glGenBuffers(1, &object.object_handle);
+
+	return object;
 }
 
 void ASP_VBO_Destroy(struct ASP_VBO object)
