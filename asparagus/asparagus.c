@@ -29,29 +29,14 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 	ASP_BindShader(state.shader);
 
 	//--------------------------------------------------------------------------------------
-	float vertices[] = {
-		-0.5f, -0.5f, 0.0f, // left
-		0.5f, -0.5f, 0.0f,	// right
-		0.0f, 0.5f, 0.0f	// top
-	};
 
-	unsigned int VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 	//--------------------------------------------------------------------------------------
 
 	//Camera
 	camera = ASP_CreateCamera(PI / 2, NULL);
 
 	//Start callback
-	//window.start();
+	window.start();
 
 	//Update loop
 	while (state.running)
@@ -63,15 +48,12 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 
 		glClearColor(0.2f, 0.4f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(state.shader.shader_handle);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		SDL_GL_SwapWindow(state.window->handle);
+
 		//Update callback
-		//window.update();
+		window.update();
 
 		//ASP_UpdateCamera(&camera);
-		//ASP_Render();
+		ASP_Render();
 
 		//Frame time & deltatime
 		clock_t difference = clock() - before;
@@ -187,8 +169,7 @@ int ASP_EventHandler()
 
 int ASP_Render()
 {
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-	SDL_GL_SwapWindow(window.handle);
+	SDL_GL_SwapWindow(state.window->handle);
 	return 0;
 }
 
