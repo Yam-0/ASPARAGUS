@@ -39,6 +39,13 @@ float clampf(float value, float min, float max)
 
 	return value;
 }
+float relative_clampf(float value, float minus, float plus)
+{
+	value = (value > value + plus) ? value + plus : value;
+	value = (value < value - minus) ? value - minus : value;
+
+	return value;
+}
 
 ASP_FVector3 ASP_RotateVector(float a, ASP_FVector3 vector, int axis)
 {

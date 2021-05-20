@@ -47,8 +47,8 @@ void ASP_HandleCursor()
 
 	if (state.mouseFocus == 1 && state.keyboardFocus == 1)
 	{
-		window.mouse.delta.x = window.mouse.position.x - tmplx;
-		window.mouse.delta.y = window.mouse.position.y - tmply;
+		window.mouse.delta.x = relative_clampf(window.mouse.position.x - tmplx, 100, 100);
+		window.mouse.delta.y = relative_clampf(window.mouse.position.y - tmply, 100, 100);
 
 		if (state.grabMouse)
 		{

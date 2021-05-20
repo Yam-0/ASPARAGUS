@@ -5,6 +5,7 @@
 ASP_Entity player;
 float p_mspeed = 4;
 float p_rspeed = 2.0f;
+float mouse_sensitivity = 35;
 int iHorizontal = 0;
 int iVertical = 0;
 
@@ -50,19 +51,19 @@ void update()
 	iHorizontal = 0;
 	iVertical = 0;
 
-	if (ASPK_D == 1)
+	if (ASPK_D)
 	{
 		iHorizontal += 1;
 	}
-	if (ASPK_A == 1)
+	if (ASPK_A)
 	{
 		iHorizontal -= 1;
 	}
-	if (ASPK_W == 1)
+	if (ASPK_W)
 	{
 		iVertical += 1;
 	}
-	if (ASPK_S == 1)
+	if (ASPK_S)
 	{
 		iVertical -= 1;
 	}
@@ -79,18 +80,18 @@ void update()
 	player.position.x += (p_vx * deltatime);
 	player.position.y += (p_vy * deltatime);
 
-	if (ASPK_SPACE == 1)
+	if (ASPK_SPACE)
 	{
 		player.position.z += (4.0f * deltatime);
 	}
-	if (ASPK_CTRL == 1)
+	if (ASPK_CTRL)
 	{
 		player.position.z -= (4.0f * deltatime);
 	}
 
-	if (ASPKP_ESC == 1)
+	if (ASPKP_ESC)
 	{
-		state.grabMouse = !(state.grabMouse == 1);
+		state.grabMouse = !state.grabMouse;
 		if (state.grabMouse == 1)
 		{
 			SDL_SetWindowFullscreen(window.handle, SDL_WINDOW_FULLSCREEN);
@@ -100,11 +101,13 @@ void update()
 			SDL_SetWindowFullscreen(window.handle, 0);
 		}
 	}
+	if (ASPKP_0)
+		state.wireframe = !state.wireframe;
 
 	if (state.grabMouse == 1)
 	{
-		player.rotation.z += window.mouse.delta.x * deltatime;
-		player.rotation.x += window.mouse.delta.y * deltatime;
+		player.rotation.z += window.mouse.delta.x * deltatime * mouse_sensitivity / 100;
+		player.rotation.x += window.mouse.delta.y * deltatime * mouse_sensitivity / 100;
 
 		player.rotation.x = clampf(player.rotation.x, -PI / 2, PI / 2);
 	}
