@@ -81,27 +81,28 @@ void ASP_Mesh_GenerateSquare(struct ASP_Mesh *object)
 	int *indices = (int *)malloc(object->index_count * sizeof(int) * 3);
 
 	float _vertices[] = {
-		0.5f, 0.5f, -0.5f,
-		-0.5f, 0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
 		0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
 		0.5f, 0.5f, 0.5f,
 		-0.5f, 0.5f, 0.5f,
-		-0.5f, -0.5f, 0.5f,
-		0.5f, -0.5f, 0.5f};
+		-0.5f, 0.5f, -0.5f};
 
-	int _indices[] = {0, 1, 3,
-					  1, 2, 3,
-					  0, 1, 4,
-					  1, 4, 5,
-					  1, 2, 5,
-					  2, 6, 5,
+	int _indices[] = {// front
+					  0, 1, 2,
+					  2, 3, 0,
+					  1, 5, 6,
+					  6, 2, 1,
+					  7, 6, 5,
+					  5, 4, 7,
+					  4, 0, 3,
+					  3, 7, 4,
+					  4, 5, 1,
+					  1, 0, 4,
 					  3, 2, 6,
-					  3, 7, 6,
-					  0, 3, 7,
-					  0, 4, 7,
-					  4, 5, 6,
-					  4, 6, 7};
+					  6, 7, 3};
 
 	for (int i = 0; i < object->vertex_count; i++)
 	{

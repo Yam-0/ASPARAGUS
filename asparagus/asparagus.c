@@ -27,8 +27,16 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 											 //{.index = 2, .name = "color"},
 		});
 	ASP_BindShader(state.shader);
+
 	//Public camera, unattached.
 	camera = ASP_CreateCamera(PI / 2, NULL);
+
+	//Opengl configurations
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	//Start callback
 	window.start();
@@ -41,7 +49,7 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 
 		ASP_EventHandler();
 		glClearColor(0.2f, 0.4f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPolygonMode(GL_FRONT_AND_BACK, state.wireframe ? GL_LINE : GL_FILL);
 
 		//Update callback
