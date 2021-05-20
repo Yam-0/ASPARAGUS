@@ -14,18 +14,17 @@ struct ASP_Face
 };
 */
 
-struct ASP_MeshBuffer
-{
-	void *data;
-	size_t index, count, capacity;
-};
-
 struct ASP_Mesh
 {
 	ASP_Entity *parentObject;
 	bool attached;
 
-	struct ASP_MeshBuffer vertices, faces, indices;
+	//struct ASP_MeshBuffer vertices, faces, indices;
+	float *vertices;
+	int *indices;
+
+	int index_count;
+	int vertex_count;
 
 	struct ASP_VAO vao;
 	struct ASP_VBO vbo, ibo;

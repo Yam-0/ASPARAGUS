@@ -8,10 +8,6 @@ void ASP_Mesh_Init(struct ASP_Mesh *object)
 	object->vao = ASP_VAO_Create();
 	object->vbo = ASP_VBO_Create(GL_ARRAY_BUFFER, GL_FALSE);
 	object->ibo = ASP_VBO_Create(GL_ELEMENT_ARRAY_BUFFER, GL_FALSE);
-
-	object->vertices.capacity = 0;
-	object->faces.capacity = 0;
-	object->indices.capacity = 0;
 }
 
 void ASP_Mesh_Attach(struct ASP_Mesh *mesh, ASP_Entity *entity)
@@ -19,7 +15,7 @@ void ASP_Mesh_Attach(struct ASP_Mesh *mesh, ASP_Entity *entity)
 	entity->mesh = mesh;
 	mesh->parentObject = entity;
 	mesh->attached = true;
-	printf("Attached to entity: %s", entity->name);
+	printf("Attached to entity: %s\n", entity->name);
 }
 
 void ASP_Mesh_Destroy(struct ASP_Mesh *object)
@@ -61,55 +57,30 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 	size_t stride = 3 * sizeof(float);
 	ASP_VAO_Attribute(object->vao, object->vbo, 0, 3, GL_FLOAT, stride, 0 * sizeof(float));
 
-	//TEMP SOLUTION
 	//-------------------------------------------------------------
-	float vertices[] = {
-		0.5f, 0.5f, 0.0f,	// top right
-		0.5f, -0.5f, 0.0f,	// bottom right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.5f, 0.5f, 0.0f	// top left
-	};
-	unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3	 // second triangle
-	};
-
 	glBindVertexArray(object->vao.object_handle);
-
-	ASP_VBO_Bind(object->vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	ASP_VBO_Bind(object->ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
+	ASP_VBO_Buffer(object->vbo, object->vertices, 0, sizeof(float) * object->vertex_count * 3);
+	ASP_VBO_Buffer(object->ibo, object->indices, 0, sizeof(float) * object->index_count * 3);
 	//-------------------------------------------------------------
 
 	ASP_VAO_Bind(object->vao);
 	ASP_VBO_Bind(object->ibo);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, object->index_count * 3, GL_UNSIGNED_INT, 0);
 }
 
 void ASP_Mesh_Update(struct ASP_Mesh *object)
 {
 }
 
-void ASP_Mesh_FillSquare(struct ASP_Mesh *object)
+void ASP_Mesh_GenerateSquare(struct ASP_Mesh *object)
 {
-	struct ASP_MeshBuffer vertices, faces, indices;
+	object->vertex_count = 8;
+	object->index_count = 12;
 
-	vertices.capacity = 3 * 8 * sizeof(int);
-	faces.capacity = 3 * 12 * sizeof(int);
-	indices.capacity = 1 * sizeof(int);
+	float *vertices = (float *)malloc(object->vertex_count * sizeof(float) * 3);
+	int *indices = (int *)malloc(object->index_count * sizeof(int) * 3);
 
-	vertices.count = 8;
-	faces.count = 12;
-	indices.count = 1;
-
-	vertices.index = sizeof(float);
-	faces.index = sizeof(int);
-	indices.index = sizeof(int);
-
-	float _vertices[3 * 8] = {
+	float _vertices[] = {
 		0.5f, 0.5f, -0.5f,
 		-0.5f, 0.5f, -0.5f,
 		-0.5f, -0.5f, -0.5f,
@@ -119,26 +90,32 @@ void ASP_Mesh_FillSquare(struct ASP_Mesh *object)
 		-0.5f, -0.5f, 0.5f,
 		0.5f, -0.5f, 0.5f};
 
-	int _faces[3 * 12] = {0, 1, 3,
-						  1, 2, 3,
-						  0, 1, 4,
-						  1, 4, 5,
-						  1, 2, 5,
-						  2, 6, 5,
-						  3, 2, 6,
-						  3, 7, 6,
-						  0, 3, 7,
-						  0, 4, 7,
-						  4, 5, 6,
-						  4, 6, 7};
+	int _indices[] = {0, 1, 3,
+					  1, 2, 3,
+					  0, 1, 4,
+					  1, 4, 5,
+					  1, 2, 5,
+					  2, 6, 5,
+					  3, 2, 6,
+					  3, 7, 6,
+					  0, 3, 7,
+					  0, 4, 7,
+					  4, 5, 6,
+					  4, 6, 7};
 
-	int _indices[1] = {1};
-
-	vertices.data = _vertices;
-	faces.data = _faces;
-	indices.data = _indices;
+	for (int i = 0; i < object->vertex_count; i++)
+	{
+		vertices[i * 3] = _vertices[i * 3];
+		vertices[i * 3 + 1] = _vertices[i * 3 + 1];
+		vertices[i * 3 + 2] = _vertices[i * 3 + 2];
+	}
+	for (int i = 0; i < object->index_count; i++)
+	{
+		indices[i * 3] = _indices[i * 3];
+		indices[i * 3 + 1] = _indices[i * 3 + 1];
+		indices[i * 3 + 2] = _indices[i * 3 + 2];
+	}
 
 	object->vertices = vertices;
-	object->faces = faces;
 	object->indices = indices;
 }

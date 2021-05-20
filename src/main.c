@@ -33,7 +33,7 @@ void start()
 	//World objects
 	box1 = ASP_Entity_Create("BOX");
 	ASP_Mesh_Init(&box1mesh);
-	//ASP_Mesh_FillSquare(&box1mesh);
+	ASP_Mesh_GenerateSquare(&box1mesh);
 	ASP_Mesh_Attach(&box1mesh, &box1);
 
 	//Settings
@@ -112,45 +112,45 @@ void update()
 		player.rotation.x = clampf(player.rotation.x, -PI / 2, PI / 2);
 	}
 
-	if (ASPK_Up == 1 && ASPK_SHIFT != 1)
+	if (ASPK_Up && !ASPK_SHIFT)
 	{
 		box1.position.y -= 5 * deltatime;
 	}
-	if (ASPK_Down == 1 && ASPK_SHIFT != 1)
+	if (ASPK_Down && !ASPK_SHIFT)
 	{
 		box1.position.y += 5 * deltatime;
 	}
-	if (ASPK_Right == 1 && ASPK_SHIFT != 1)
+	if (ASPK_Right && !ASPK_SHIFT)
 	{
 		box1.position.x += 5 * deltatime;
 	}
-	if (ASPK_Left == 1 && ASPK_SHIFT != 1)
+	if (ASPK_Left && !ASPK_SHIFT)
 	{
 		box1.position.x -= 5 * deltatime;
 	}
 
-	if (ASPK_Up == 1 && ASPK_SHIFT == 1)
+	if (ASPK_Up && ASPK_SHIFT)
 	{
 		box1.rotation.x += 5 * deltatime;
 	}
-	if (ASPK_Down == 1 && ASPK_SHIFT == 1)
+	if (ASPK_Down && ASPK_SHIFT)
 	{
 		box1.rotation.x -= 5 * deltatime;
 	}
-	if (ASPK_Right == 1 && ASPK_SHIFT == 1)
+	if (ASPK_Right && ASPK_SHIFT)
 	{
 		box1.rotation.z += 5 * deltatime;
 	}
-	if (ASPK_Left == 1 && ASPK_SHIFT == 1)
+	if (ASPK_Left && ASPK_SHIFT)
 	{
 		box1.rotation.z -= 5 * deltatime;
 	}
 
-	if (ASPK_E == 1)
+	if (ASPK_E)
 	{
 		box1.scale.z += 5 * deltatime;
 	}
-	if (ASPK_Q == 1)
+	if (ASPK_Q)
 	{
 		box1.scale.z -= 5 * deltatime;
 	}
