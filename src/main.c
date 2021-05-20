@@ -45,7 +45,7 @@ void start()
 void update()
 {
 	float deltatime = window.deltatime;
-	printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, window.fps);
+	//printf("Updated! | Deltatime: %f | fps: %i\n", deltatime, window.fps);
 
 	iHorizontal = 0;
 	iVertical = 0;
@@ -105,6 +105,8 @@ void update()
 	{
 		player.rotation.z += window.mouse.delta.x * deltatime;
 		player.rotation.x += window.mouse.delta.y * deltatime;
+
+		player.rotation.x = clampf(player.rotation.x, -PI / 2, PI / 2);
 	}
 
 	if (ASPK_Up == 1 && ASPK_SHIFT != 1)

@@ -5,7 +5,6 @@ void ASP_Mesh_Init(struct ASP_Mesh *object)
 	object->parentObject = NULL;
 	object->attached = false;
 
-	//memset(object, 0, sizeof(struct ASP_Mesh));
 	object->vao = ASP_VAO_Create();
 	object->vbo = ASP_VBO_Create(GL_ARRAY_BUFFER, GL_FALSE);
 	object->ibo = ASP_VBO_Create(GL_ELEMENT_ARRAY_BUFFER, GL_FALSE);
@@ -13,8 +12,6 @@ void ASP_Mesh_Init(struct ASP_Mesh *object)
 	object->vertices.capacity = 0;
 	object->faces.capacity = 0;
 	object->indices.capacity = 0;
-	//struct ASP_MeshBuffer *buffers[3] = {
-	//&object->vertices, &object->indices, &object->faces};
 }
 
 void ASP_Mesh_Attach(struct ASP_Mesh *mesh, ASP_Entity *entity)
@@ -27,7 +24,6 @@ void ASP_Mesh_Attach(struct ASP_Mesh *mesh, ASP_Entity *entity)
 
 void ASP_Mesh_Destroy(struct ASP_Mesh *object)
 {
-	//free(&object->vertices);
 	ASP_VAO_Destroy(object->vao);
 	ASP_VBO_Destroy(object->vbo);
 	ASP_VBO_Destroy(object->ibo);
