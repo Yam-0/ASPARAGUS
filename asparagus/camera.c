@@ -8,8 +8,7 @@ struct ASP_Camera ASP_CreateCamera(float fov, ASP_Entity *parentObject)
 
 	memset(&camera, 0, sizeof(struct ASP_Camera));
 	camera.fov = fov;
-	//camera.aspect = (float)window.screenSize.x / (float)window.screenSize.y;
-	camera.aspect = 16 / 9;
+	camera.aspect = (float)window.screenSize.x / (float)window.screenSize.y;
 	camera.parentObject = parentObject;
 	camera.z_near = 0.01f;
 	camera.z_far = 1000.0f;
