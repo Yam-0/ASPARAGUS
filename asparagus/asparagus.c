@@ -22,9 +22,9 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		"../data/shaders/shader.vert",
 		"../data/shaders/shader.frag", 1,
 		(struct ASP_VertexAttribute[]){
-			{.index = 0, .name = "position"} //Vertex position
-											 //{.index = 1, .name = "tmp"},
-											 //{.index = 2, .name = "color"},
+			{.index = 0, .name = "position"}, //Vertex position
+			{.index = 2, .name = "color"},
+			{.index = 1, .name = "uv"},
 		});
 	ASP_BindShader(state.shader);
 

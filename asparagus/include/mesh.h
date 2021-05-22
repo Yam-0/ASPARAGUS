@@ -5,21 +5,11 @@
 #include "../vbo.c"
 #include "../vao.c"
 
-/*
-struct ASP_Face
-{
-	size_t indices_base;
-	ASP_FVector3 position;
-	float distance;
-};
-*/
-
 struct ASP_Mesh
 {
 	ASP_Entity *parentObject;
 	bool attached;
 
-	//struct ASP_MeshBuffer vertices, faces, indices;
 	float *vertices;
 	int *indices;
 

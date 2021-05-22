@@ -56,6 +56,8 @@ void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 
 	size_t stride = 3 * sizeof(float);
 	ASP_VAO_Attribute(object->vao, object->vbo, 0, 3, GL_FLOAT, stride, 0 * sizeof(float));
+	ASP_VAO_Attribute(object->vao, object->vbo, 1, 3, GL_FLOAT, stride, 3 * sizeof(float));
+	ASP_VAO_Attribute(object->vao, object->vbo, 2, 2, GL_FLOAT, stride, 6 * sizeof(float));
 
 	//-------------------------------------------------------------
 	glBindVertexArray(object->vao.object_handle);
