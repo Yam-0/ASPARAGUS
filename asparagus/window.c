@@ -1,7 +1,7 @@
 #include "include/window.h"
 
-const int SCREEN_WIDTH = 2560;
-const int SCREEN_HEIGHT = 1440;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 struct ASP_Window window;
 
