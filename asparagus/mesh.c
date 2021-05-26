@@ -2,6 +2,12 @@
 
 void ASP_Mesh_Init(struct ASP_Mesh *object)
 {
+	if(!object)
+	{
+		printf("Nullpointer in mesh init.\n");
+		return;
+	}
+
 	object->parentObject = NULL;
 	object->attached = false;
 
@@ -34,6 +40,12 @@ void ASP_Mesh_Attach(struct ASP_Mesh *mesh, ASP_Entity *entity)
 
 void ASP_Mesh_Destroy(struct ASP_Mesh *object)
 {
+	if(!object)
+	{
+		printf("Nullpointer in mesh destroy.\n");
+		return;
+	}
+
 	ASP_VAO_Destroy(object->vao);
 	ASP_VBO_Destroy(object->vbo);
 	ASP_VBO_Destroy(object->ibo);
