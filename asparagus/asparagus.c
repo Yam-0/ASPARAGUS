@@ -92,7 +92,7 @@ int ASP_EventHandler()
 
 	ASP_HandleCursor();
 
-	SDL_DShader_Destroy;
+	SDL_DisplayMode DM;
 	SDL_GetCurrentDisplayMode(0, &DM);
 	DISPLAY_WIDTH = DM.w;
 	DISPLAY_HEIGHT = DM.h;
