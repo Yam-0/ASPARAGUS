@@ -43,7 +43,7 @@ void ASP_Mesh_Destroy(struct ASP_Mesh *object)
 
 void ASP_Mesh_Render(struct ASP_Mesh *object, struct ASP_Camera *camera)
 {
-	ASP_BindShader(state.shader);
+	ASP_Shader_Bind(state.shader);
 	ASP_Mat4f_camera(state.shader, camera);
 
 	mat4 mm;

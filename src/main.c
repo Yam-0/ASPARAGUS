@@ -28,7 +28,7 @@ void start()
 	player.rotation.x = 0;
 	player.rotation.y = 0;
 	player.rotation.z = 0;
-	ASP_AttachCamera(&camera, &player);
+	ASP_Camera_Attach(&camera, &player);
 
 	//World objects
 	box1 = ASP_Entity_Create("BOX");

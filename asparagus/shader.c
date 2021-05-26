@@ -1,6 +1,6 @@
 #include "include/shader.h"
 
-const char *ASP_LoadShader(char *filename)
+const char *ASP_Shader_Load(char *filename)
 {
 	FILE *sfh = fopen(filename, "r");
 	if (sfh == NULL)
@@ -50,7 +50,7 @@ const char *ASP_LoadShader(char *filename)
 	return shader;
 }
 
-GLuint ASP_CompileShader(GLuint shader, char *code)
+GLuint ASP_Shader_Compile(GLuint shader, char *code)
 {
 	glShaderSource(shader, 1, &code, NULL);
 	glCompileShader(shader);
@@ -72,21 +72,21 @@ GLuint ASP_CompileShader(GLuint shader, char *code)
 	}
 }
 
-struct ASP_Shader ASP_CreateShader(char *filepath_vs, char *filepath_fs, size_t n, struct ASP_VertexAttribute attr[])
+struct ASP_Shader ASP_Shader_Create(char *filepath_vs, char *filepath_fs, size_t n, struct ASP_VertexAttribute attr[])
 {
 	struct ASP_Shader shader;
 	char *vs, *fs;
 
 	//Load and compile vertex shader
-	vs = ASP_LoadShader(filepath_vs);
+	vs = ASP_Shader_Load(filepath_vs);
 	shader.vs_handle = glCreateShader(GL_VERTEX_SHADER);
-	ASP_CompileShader(shader.vs_handle, vs);
+	ASP_Shader_Compile(shader.vs_handle, vs);
 	//free(vs);
 
 	//Load and compile fragment shader
-	fs = ASP_LoadShader(filepath_fs);
+	fs = ASP_Shader_Load(filepath_fs);
 	shader.fs_handle = glCreateShader(GL_FRAGMENT_SHADER);
-	ASP_CompileShader(shader.fs_handle, fs);
+	ASP_Shader_Compile(shader.fs_handle, fs);
 	//free(fs);
 
 	//Create and link shader program
@@ -122,24 +122,28 @@ struct ASP_Shader ASP_CreateShader(char *filepath_vs, char *filepath_fs, size_t 
 	return shader;
 }
 
-void ASP_DestroyShader(struct ASP_Shader shader)
+void ASP_Shader_Destroy(struct ASP_Shader shader)
 {
 	glDeleteProgram(shader.shader_handle);
 	glDeleteShader(shader.vs_handle);
 	glDeleteShader(shader.fs_handle);
+	return;
 }
-void ASP_BindShader(struct ASP_Shader shader)
+void ASP_Shader_Bind(struct ASP_Shader shader)
 {
 	glUseProgram(shader.shader_handle);
+	return;
 }
 void ASP_Mat4f_uniform(struct ASP_Shader shader, char *name, mat4 m)
 {
 	glMatrixMode(GL_MODELVIEW);
 	GLint location = glGetUniformLocation(shader.shader_handle, name);
 	glUniformMatrix4fv(location, 1, GL_FALSE, m[0]);
+	return;
 }
 void ASP_Mat4f_camera(struct ASP_Shader shader, struct ASP_Camera *camera)
 {
 	ASP_Mat4f_uniform(shader, "p", camera->proj);
 	ASP_Mat4f_uniform(shader, "v", camera->view);
+	return;
 }

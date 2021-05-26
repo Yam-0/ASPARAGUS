@@ -18,7 +18,7 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 	int msec = 0;
 
 	/* SHADERS - LOAD, COMPILE, LINK and BIND */
-	state.shader = ASP_CreateShader(
+	state.shader = ASP_Shader_Create(
 		"../data/shaders/shader.vert",
 		"../data/shaders/shader.frag", 1,
 		(struct ASP_VertexAttribute[]){
@@ -26,10 +26,10 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 											  //{.index = 1, .name = "color"},
 											  //{.index = 2, .name = "uv"},
 		});
-	ASP_BindShader(state.shader);
+	ASP_Shader_Bind(state.shader);
 
 	//Public camera, unattached.
-	camera = ASP_CreateCamera(PI / 2, NULL);
+	camera = ASP_Camera_Create(PI / 2, NULL);
 
 	//Opengl configurations
 	glEnable(GL_DEPTH_TEST);
@@ -55,7 +55,7 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		//Update callback
 		window.update();
 
-		ASP_UpdateCamera(&camera);
+		ASP_Camera_Update(&camera);
 		ASP_Render();
 
 		//Frame time & deltatime
@@ -65,52 +65,11 @@ int ASP_init(_ASP_CALLBACK start, _ASP_CALLBACK update, _ASP_CALLBACK tick, _ASP
 		window.deltatime = (deltatime == 0.0f) ? deltatime + 0.0001f : deltatime;
 		window.fps = 1.0f / deltatime;
 		window.totalSeconds += deltatime;
-
-		/*
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR)
-		{
-			printf("ERROR!\n");
-			//printf("error:%i\n", err);
-			printf("error:%i\n", err);
-
-			switch (err)
-			{
-			case GL_INVALID_ENUM:
-				printf("error: 1\n");
-				break;
-			case GL_INVALID_VALUE:
-				printf("error: 2\n");
-				break;
-			case GL_INVALID_OPERATION:
-				printf("error: 3\n");
-				break;
-			case GL_STACK_OVERFLOW:
-				printf("error: 4\n");
-				break;
-			case GL_STACK_UNDERFLOW:
-				printf("error: 5\n");
-				break;
-			case GL_OUT_OF_MEMORY:
-				printf("error: 6\n");
-				break;
-			case GL_INVALID_FRAMEBUFFER_OPERATION:
-				printf("error: 7\n");
-				break;
-
-			default:
-				printf("error not found\n");
-				break;
-			}
-
-			printf("\n");
-		}
-		*/
 	}
 
 	window.destroy();
 
-	ASP_DestroyShader(state.shader);
+	ASP_Shader_Destroy(state.shader);
 
 	//glDeleteBuffers(1, &vbo);
 	//glDeleteVertexArrays(1, &vao);

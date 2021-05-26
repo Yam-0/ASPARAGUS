@@ -2,7 +2,7 @@
 #include "include/camera.h"
 #include "include/window.h"
 
-struct ASP_Camera ASP_CreateCamera(float fov, ASP_Entity *parentObject)
+struct ASP_Camera ASP_Camera_Create(float fov, ASP_Entity *parentObject)
 {
 	struct ASP_Camera camera;
 
@@ -13,17 +13,18 @@ struct ASP_Camera ASP_CreateCamera(float fov, ASP_Entity *parentObject)
 	camera.z_near = 0.01f;
 	camera.z_far = 1000.0f;
 
-	ASP_UpdateCamera(&camera);
+	ASP_Camera_Update(&camera);
 	return camera;
 }
 
-void ASP_AttachCamera(struct ASP_Camera *camera, ASP_Entity *entity)
+void ASP_Camera_Attach(struct ASP_Camera *camera, ASP_Entity *entity)
 {
 	camera->parentObject = entity;
 	camera->attached = ASP_TRUE;
+	return;
 }
 
-void ASP_UpdateCamera(struct ASP_Camera *camera)
+void ASP_Camera_Update(struct ASP_Camera *camera)
 {
 	float pdir[3], pp[3];
 	if (camera->attached)
@@ -50,4 +51,5 @@ void ASP_UpdateCamera(struct ASP_Camera *camera)
 	glm_vec3_add(pp, pdir, wpp);
 	glm_lookat(pp, wpp, cpup, camera->view);
 	glm_perspective(camera->fov, camera->aspect, camera->z_near, camera->z_far, camera->proj);
+	return;
 }
